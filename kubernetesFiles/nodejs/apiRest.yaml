@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-rest
+  namespace: default
+  labels:
+    app: api-rest
+    tier: backend
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-rest
+  template:
+    metadata:
+      labels:
+        app: api-rest
+    spec:
+      containers:
+        - name: api-rest-pod
+          image: roxax19/nodejs:0.3
+          ports:
+          - containerPort: 8080
+          env:
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/node/mount/ssl/myCA.pem"
+          command:
+            - bash
+            - "-c"
+            - node api-rest.js
+          volumeMounts:
+            - mountPath: /node/mount
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/tfg/mounts/api-rest
+            # this field is optional
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-rest
+  namespace: default
+spec:
+  selector:
+    app: api-rest
+  ports:
+    - port: 8080
+  type: LoadBalancer
+  clusterIP: 10.152.183.200

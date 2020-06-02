@@ -1,0 +1,35 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: alpaca-prod
+  namespace: default
+  selfLink: /apis/apps/v1/namespaces/default/deployments/alpaca-prod
+  uid: d898a218-8972-425f-8d43-963d8cd063fb
+kind: Service
+apiVersion: v1
+metadata:
+  name: alpaca-prod
+  namespace: default
+  selfLink: /api/v1/namespaces/default/services/alpaca-prod
+  uid: 77cae939-2ad5-4bb2-82f2-ea269fc4392d
+  resourceVersion: '61219'
+  creationTimestamp: '2019-12-03T10:22:06Z'
+  labels:
+    app: alpaca
+    env: prod
+    ver: '1'
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: alpaca
+    env: prod
+    ver: '1'
+  clusterIP: 10.152.183.121
+  type: NodePort
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+

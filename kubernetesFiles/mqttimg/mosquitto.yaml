@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto-broker
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      containers:
+      - name: mosquito-broker
+        image: eclipse-mosquitto:1.6.7
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-broker
+  namespace: default
+  labels:
+    app: mqtt
+spec:
+  selector:
+    app: mqtt
+  ports:
+  - name: mqtt
+    port: 1883
+    targetPort: 1883
+  clusterIP: 10.152.183.240
+  type: LoadBalancer
+

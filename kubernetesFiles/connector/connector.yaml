@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connector
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connector
+  template:
+    metadata:
+      labels:
+        app: connector
+    spec:
+      containers:
+        - name: connector-pod
+          image: roxax19/sincmd:0.1
+          command:
+            - bash
+            - "-c"
+            - python2.7 connector.py
+          volumeMounts:
+            - mountPath: /mount
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/tfg/mounts/connector
+            # this field is optional
+            type: Directory

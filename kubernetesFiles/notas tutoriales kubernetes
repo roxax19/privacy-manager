@@ -1,0 +1,36 @@
+Configuracion NodePort
+NodePort es un servicio que mapea un puerto de localhost con el puerto y la ip del pod al que nos queremos conectar. El orden de escritura es <puertoPod>:<puertoLocalHost>
+
+Los comandos para ejecutar una imagen del docker hub estan en el tutorial de microk8s
+
+Siguiendo el tutorial de PersistentVolume y PVC
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/
+PersistentVolume es como crear un disco dentro del nodo. Un PVC es como asociar ese disco a una "direccion", que es lo que luego se le tiene que pasar al pod. No le puedes dar el disco directamente, sino que a un pod le tienes que dar un PVC asociado a un PC
+
+En este tutorial tambien vemos como acceder a un shell de un pod:
+kubectl exec -it <nombre del pod> -- /bin/bash
+
+https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+Una StorageClass puede crear PV segun los PVC que vayamos generando.
+Con microk8s.enable storage creamos una storageClass ya configurada.
+Hay que añadir kubernetes.io/pvc-protection a los pv y los pvc para que no sean eliminados hasta que se desvinculen de un pvc y un pod respectivamente
+
+Stateful Sets:
+https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+Aqui podemos ver los nombres que reciben las diferentes partes implicadas
+Eliminar un stateful set no elimina los pvc asociados a los pods que contuviera
+
+Hay un tutorial de mysql sin stateful aplication, que en principio ese no lo vamos a usar.
+
+Este es el tutorial de statefull con replicas:
+https://kubernetes.io/docs/tasks/run-application/run-replicated-stateful-application/
+"string" =~ regex lo que hace es ver si la cadena cumple la expresion regular
+'' lo que hacen es aplicar el comando que hay dentro (hostname es un comando) y quedarse con lo que devuelva.
+En BASH_REMATCH[0] se guarda la parte de la cadena que coincide si la comparacion ha sido correcta. En [1] la primera letra de esa cadena, y asi sucesivamente.
+Un poco más abajo viene la explicacion a nivel alto de todo
+
+Para cambiar microk8s.kubetctl por kubectl hay que crear un script con el contenido:
+microk8s.kubectl $@
+y luego ponerlo en una ruta del path
+
+

@@ -1,0 +1,28 @@
+{
+	"max": 3,
+	"reglas": [
+		{
+			"action": [
+				"GET"
+			],
+			"data": [
+				"all"
+			],
+			"privacyMethod": [
+				"gen"
+			]
+		},
+		{
+			"action": [
+				"POST"
+			]
+		},
+		{
+			"action": [
+				"DELETE"
+			]
+		}
+	]
+}
+
+

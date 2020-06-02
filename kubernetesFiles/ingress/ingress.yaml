@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: k8s-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    #nginx.ingress.kubernetes.io/proxy-ssl-secret: cert 
+
+spec:
+  rules:
+  - http:
+      paths:
+        - path: /api-rest
+          backend:
+            serviceName: api-rest
+            servicePort: 8080
+        - path: /auth
+          backend:
+            serviceName: auth
+            servicePort: 8081

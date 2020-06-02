@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gen
+  namespace: default
+  labels:
+    app: gen
+    tier: backend
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gen
+  template:
+    metadata:
+      labels:
+        app: gen
+    spec:
+      containers:
+        - name: gen-pod
+          image: roxax19/python3.7:0.2
+          command:
+            - bash
+            - "-c"
+            - python3.7 gen.py
+          volumeMounts:
+            - mountPath: /mount
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/tfg/mounts/gen
+            # this field is optional
+            type: Directory
+---
+#Al conector no se conecta nadie, es él el que inicia las conexiones
+#Por lo tanto no le hace falta entrypoint
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: gen
+  namespace: default
+spec:
+  selector:
+    app: gen
+  ports:
+    - port: 8083
+      targetPort: 8083
+  clusterIP: 10.152.183.203
+

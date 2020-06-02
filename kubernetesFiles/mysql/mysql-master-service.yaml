@@ -1,0 +1,19 @@
+# Le añadimos esta etiqueta al mysql-0 con el comando:
+# kubectl label pods mysql-0 mysql=mysqlMaster
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-master
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: 3306
+  selector:
+    mysql: mysqlMaster
+  clusterIP: 10.152.183.137
+
+

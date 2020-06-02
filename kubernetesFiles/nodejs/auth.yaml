@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: default
+  labels:
+    app: auth
+    tier: backend
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth-pod
+          image: roxax19/nodejs:0.3
+          env:
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/node/mount/ssl/myCA.pem"
+          command:
+            - bash
+            - "-c"
+            - node auth.js
+          volumeMounts:
+            - mountPath: /node/mount
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/tfg/mounts/auth
+            # this field is optional
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: default
+spec:
+  selector:
+    app: auth
+  ports:
+    - port: 8081
+  type: LoadBalancer
+  clusterIP: 10.152.183.201
