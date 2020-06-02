@@ -1,7 +1,0 @@
-Subir una imagen a docker:
-
-Creas imagen con:
-docker build -t roxax10/nombre:tag .
-
-Subes la imagen con:
-docker push roxax19/nombre:tag
