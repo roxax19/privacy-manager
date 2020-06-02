@@ -12,9 +12,13 @@ You can easily get this with microk8s, and its addons.
 Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
 
 kubernetesFiles/connector/connector.yaml
+
 kubernetesFiles/gen/gen.yaml
+
 kubernetesFiles/nodejs/apiRest.yaml
+
 kubernetesFiles/nodejs/auth.yaml
+
 kubernetesFiles/nodejs/priv.yaml
 
 You have to put the path to the folders inside mount/ on this git.
