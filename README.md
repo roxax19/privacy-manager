@@ -21,7 +21,7 @@ kubernetesFiles/nodejs/auth.yaml
 
 kubernetesFiles/nodejs/priv.yaml
 
-You have to put the path to the folders inside mount/ on this git.
+You have to put the path to the folders inside mounts/ on this git.
 
 # Step 3
 For deploying the whole system, you have to execute (if you are working with microk8s) kubernetesFiles/execute_yaml.sh. If you aren't, you can copy the kubectl commands and execute in a terminal.
