@@ -34,7 +34,7 @@ CREATE DATABASE test
 
 -Create "personas" table.
 
-CREATE TABLE `test`.`personas` ( `id` INT NOT NULL AUTO_INCREMENT , `nombre` VARCHAR(255) NOT NULL , `edad` INT NOT NULL , `lat` FLOAT NOT NULL , `lon` FLOAT NOT NULL , `profesion` VARCHAR(255) NOT NULL , `sueldo` INT NOT NULL , `pulso` INT NOT NULL , `temepatura` FLOAT NOT NULL , `enfermedad` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
+CREATE TABLE `test`.`personas` ( `id` INT NOT NULL AUTO_INCREMENT , `nombre` VARCHAR(255) NOT NULL , `edad` INT NOT NULL , `lat` FLOAT NOT NULL , `lon` FLOAT NOT NULL , `profesion` VARCHAR(255) NOT NULL , `sueldo` INT NOT NULL , `pulso` INT NOT NULL , `temperatura` FLOAT NOT NULL , `enfermedad` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
 
 -Insert into "personas"
 
