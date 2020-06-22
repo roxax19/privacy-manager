@@ -42,7 +42,7 @@ INSERT INTO `personas` (`id`, `nombre`, `edad`, `lat`, `lon`, `profesion`, `suel
 
 -Create "usuarios" table
 
-CREATE TABLE `test`.`personas` ( `id` INT NOT NULL AUTO_INCREMENT , `email` VARCHAR(255) NOT NULL ,`contrasena` VARCHAR(255) NOT NULL , `clase` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
+CREATE TABLE `test`.`usuarios` ( `id` INT NOT NULL AUTO_INCREMENT , `email` VARCHAR(255) NOT NULL ,`contrasena` VARCHAR(255) NOT NULL , `clase` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
 
 -Insert into "usuarios"
 INSERT INTO `usuarios` (`id`, `email`, `contrasena`, `clase`) VALUES (NULL, 'a', 'a', 'admin') 
