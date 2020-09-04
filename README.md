@@ -3,12 +3,12 @@ A privacy system made for my Degree Final Project.
 
 # How to configure
 
-- Step 1
+## Step 1
 You have to configure your own kubernetes cluster. You need to have a storage class, an ingress class, and a load balancer.
 
 You can easily get this with microk8s, and its addons.
 
-- Step 2
+## Step 2
 Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
 
 kubernetesFiles/connector/connector.yaml
