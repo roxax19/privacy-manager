@@ -3,12 +3,12 @@ A privacy system made for my Degree Final Project.
 
 # How to configure
 
-# Step 1
+- Step 1
 You have to configure your own kubernetes cluster. You need to have a storage class, an ingress class, and a load balancer.
 
 You can easily get this with microk8s, and its addons.
 
-# Step 2
+- Step 2
 Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
 
 kubernetesFiles/connector/connector.yaml
@@ -23,10 +23,10 @@ kubernetesFiles/nodejs/priv.yaml
 
 You have to put the path to the folders inside mounts/ on this git.
 
-# Step 3
+- Step 3
 For deploying the whole system, you have to execute (if you are working with microk8s) kubernetesFiles/execute_yaml.sh. If you aren't, you can copy the kubectl commands and execute in a terminal.
 
-# Step 4
+- Step 4
 For it to work correctly, you have to enter the phpMyAdmin pod, and create the database and the tables with de following commands:
 
 -Create database
