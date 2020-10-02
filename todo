@@ -1,4 +1,25 @@
-To do:
+------------------------------------------ Curso 2020/21 --------------------------------------------
+
+-----To do:
+
+Añadir seguridad en la conexión con los dispositivos MQTT
+	Cambiar el broker que utilizamos acutalmente
+		Poner imagen que ejecute python en vez de imagen mosquitto directamente?
+		Utilizar conexiones TLS con cert en el servidor + usr y pwd
+		Ver si hay problemas con el Ingress y el Common Name del certificado
+			Ver como funciona -tls_passtrough en profundidad
+	Que es Helm? Ver si puede servir de ayuda
+	Investigar Certificados en la API de Kubernetes - se pueden usar para nuestro broker interno?
+
+
+-----DONE:
+
+
+	
+
+--------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
+
+-----DONE:
 
 Investigar sobre docker y kubernetes
 	Hacer tutoriales
@@ -59,18 +80,3 @@ Realizar un estudio para los algoritmos de privacidad.
 	Se va a utilizar una librería para python que implementa k anonnymity entre otras cosas.
 	Hay que modificar dicha librería con nuestra ontología
 	La idea es que se le envíe a este modulo la lista con los datos que nos interesan y con el sensitive data.
-	
-
-------------------------------------------- TFG ENTREGADO -------------------------------------------
-
-
------------------------------------------- Curso 2020/21 --------------------------------------------
-
-Añadir seguridad en la conexión con los dispositivos MQTT
-	Cambiar el broker que utilizamos acutalmente
-		Poner imagen que ejecute python en vez de imagen mosquitto directamente?
-		Utilizar conexiones TLS con cert en el servidor + usr y pwd
-		Ver si hay problemas con el Ingress y el Common Name del certificado
-			Ver como funciona -tls_passtrough en profundidad
-	Que es Helm? Ver si puede servir de ayuda
-	Investigar Certificados en la API de Kubernetes - se pueden usar para nuestro broker interno?
