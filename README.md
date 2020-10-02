@@ -9,7 +9,7 @@ You have to configure your own kubernetes cluster. You need to have a storage cl
 You can easily get this with microk8s, and its addons.
 
 ## Step 2
-Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
+Kubernetes doesn't work with relative pathing (see [pathing rules](https://github.com/kubernetes/kubernetes/pull/20328/files)), so you will have to change the volume hostpath of the following files:
 
 kubernetesFiles/connector/connector.yaml
 
