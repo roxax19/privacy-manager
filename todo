@@ -1,0 +1,76 @@
+To do:
+
+Investigar sobre docker y kubernetes
+	Hacer tutoriales
+
+Investigar sobre mosquitto
+	Hacer tutoriales
+
+Crear primer pod personalizado (mosquitto broker)
+	Investigar sobre servicios en kubernetes (Para acceder al pod)
+	Probar el pod con sub pub desde fuera
+
+Crear base de datos
+	Investigar sobre almacenar datos permanentes en kubernetes
+	Investigar sobre replicas (redundancia)
+	Crear deployment con mysql
+		Acceso distinguido para master (escritura) y para master & esclavos (lectura)
+
+Crear conector entre broker y base de datos
+	Investigar librerias en diferentes lenguajes
+	Crear script en python
+	Investigar como ejecutar script python en pod kubernetes
+	Crear deployment con conector
+
+Crear api rest para acceder como usuario a la base de datos
+	Investigar lenguajes y librerias para hacer una api rest
+	Crear script node js para la api rest
+		Conectar con base de datos
+
+Crear metodo de autentificacion
+(mirar correos de rodrigo con paginas web)
+	Crear registro usuarios en base de datos
+	Investigar librerias necesarias para la autentificacion (usaremos jwt y algo de ssl)
+	Implementar parte jwt
+	Investigar sobre certificados
+		Crear certificados propios (CA para  almacenar en el cliente, y certificado de servidor firmado por esa CA para el servidor)
+		Añadimos los certificados a la rutas de confianza de ubuntu y de firefox, que usa la suya propia
+		Añadir el certificado de servidor al nodejs
+		Añadimos tambien HSTS (para que solo vaya por HTTPS)
+		Probelema: nombre de dominio del certificado
+			Investigar como ha hecho otra gente servidores tls en kubernetes
+
+Realizar mock-up, es decir, definir la comunicación entre las restantes partes del sistema
+	Tenemos que conectar servicios internos con TLS.
+	Para ello, vamos a necesitar añadir la CA que nosotros hemos creado al node actualizando la variable de entorno de node en el terminal.
+		export NODE_EXTRA_CA_CERTS=/home/manuel/tfg/certificados/myCA.pem
+		hemos añadido la variable a ent para que no haga falta ponerla siempre.
+
+Relaizar un estudio para la ontologia
+	Diseñar una ontologia sencilla
+	Adecuar la base de datos a la ontologia
+	Adecuar los mensajes mqtt a la ontologia
+
+Realizra un estudio para las politicas de privacidad
+	Diseñar un tipo de políticas y reglas sencillas
+	Crear un lector de políticas
+
+Realizar un estudio para los algoritmos de privacidad.
+	Se va a utilizar una librería para python que implementa k anonnymity entre otras cosas.
+	Hay que modificar dicha librería con nuestra ontología
+	La idea es que se le envíe a este modulo la lista con los datos que nos interesan y con el sensitive data.
+	
+
+------------------------------------------- TFG ENTREGADO -------------------------------------------
+
+
+------------------------------------------ Curso 2020/21 --------------------------------------------
+
+Añadir seguridad en la conexión con los dispositivos MQTT
+	Cambiar el broker que utilizamos acutalmente
+		Poner imagen que ejecute python en vez de imagen mosquitto directamente?
+		Utilizar conexiones TLS con cert en el servidor + usr y pwd
+		Ver si hay problemas con el Ingress y el Common Name del certificado
+			Ver como funciona -tls_passtrough en profundidad
+	Que es Helm? Ver si puede servir de ayuda
+	Investigar Certificados en la API de Kubernetes - se pueden usar para nuestro broker interno?
