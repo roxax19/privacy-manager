@@ -4,11 +4,14 @@
 
 Añadir seguridad en la conexión con los dispositivos MQTT
 	Cambiar el broker que utilizamos acutalmente
-		Poner imagen que ejecute python en vez de imagen mosquitto directamente?
+		Poner imagen que ejecute python en vez de imagen mosquitto directamente? NO
+			Entrar en la imagen actual y ver los archivos de configuracion
+			Montar un nuevo archivo de configuración dentro de la imagen
+			Ver formato del archivo de configuracion
 		Utilizar conexiones TLS con cert en el servidor + usr y pwd
 		Ver si hay problemas con el Ingress y el Common Name del certificado
 			Ver como funciona -tls_passtrough en profundidad
-	Que es Helm? Ver si puede servir de ayuda
+	Que es Helm? --> permite bajar plantillas de yamls
 	Investigar Certificados en la API de Kubernetes - se pueden usar para nuestro broker interno?
 
 
