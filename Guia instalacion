@@ -34,6 +34,4 @@ Hay que usar python 2.7
 
 He instalado adons de microk8s: dns, dashboard, ingress, storage, metallb
 
--- Gestion --
-He instalado nam y ns2 con apt
 
