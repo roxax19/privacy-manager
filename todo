@@ -5,7 +5,7 @@
 Añadir seguridad en la conexión con los dispositivos MQTT
 	Utilizar conexiones TLS con cert en el servidor + usr y pwd
 	¿Es necesario introducir MQTT sobre HTTP para el Ingress?
-		Dentro de kubernetes:
+		Dentro de kubernetes:				
 			Introducir una nueva configuracion dentro de la imagen
 			Mirar problemas con Ingress y Common Name (-tls_passtrough)
 		Fuera de kubernetes:
@@ -14,19 +14,15 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 
 ---- Doing:
 
-Añadir seguridad en la conexión con los dispositivos MQTT
-	Utilizar conexiones TLS con cert en el servidor + usr y pwd
-		Fuera de kubernetes:
-			Comprobar MQTT/HTTP/TLS
-		Dentro de kubernetes:
-			Comprobando si es necesario proxy http (websockets) para pasar trafico mqtt a traves del ingress
-			Comprobando si había que acceder por Ingress o por el LoadBalancer metallb para acceso externo
+Montar mqtt sobre http fuera de kubernetes
 
 -----DONE:
 Añadir seguridad en la conexión con los dispositivos MQTT
 	Utilizar conexiones TLS con cert en el servidor + usr y pwd
 		Fuera de kubernetes:
 			Hacer funcionar MQTT/TLS
+		Dentro de kubernetes:
+		Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
