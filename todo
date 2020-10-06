@@ -15,6 +15,7 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 ---- Doing:
 
 Montar mqtt sobre http fuera de kubernetes
+Como saber que ip/nombre de dns poner en el certificado?
 
 -----DONE:
 Añadir seguridad en la conexión con los dispositivos MQTT
