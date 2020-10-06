@@ -3,22 +3,30 @@
 -----To do:
 
 Añadir seguridad en la conexión con los dispositivos MQTT
-	Cambiar el broker que utilizamos acutalmente
-		Poner imagen que ejecute python en vez de imagen mosquitto directamente? NO
-			Entrar en la imagen actual y ver los archivos de configuracion
-			Montar un nuevo archivo de configuración dentro de la imagen
-			Ver formato del archivo de configuracion
+	Utilizar conexiones TLS con cert en el servidor + usr y pwd
+	¿Es necesario introducir MQTT sobre HTTP para el Ingress?
+		Dentro de kubernetes:
+			Introducir una nueva configuracion dentro de la imagen
+			Mirar problemas con Ingress y Common Name (-tls_passtrough)
+		Fuera de kubernetes:
+			Comprobar MQTT/HTTP/TLS
+			Comprobar usr + pwd
 
-		Utilizar conexiones TLS con cert en el servidor + usr y pwd
-		Ver si hay problemas con el Ingress y el Common Name del certificado
-			Ver como funciona -tls_passtrough en profundidad
-	Que es Helm? --> permite bajar plantillas de yamls
-	Investigar Certificados en la API de Kubernetes - se pueden usar para nuestro broker interno?
+---- Doing:
 
+Añadir seguridad en la conexión con los dispositivos MQTT
+	Utilizar conexiones TLS con cert en el servidor + usr y pwd
+		Fuera de kubernetes:
+			Comprobar MQTT/HTTP/TLS
+		Dentro de kubernetes:
+			Comprobando si es necesario proxy http (websockets) para pasar trafico mqtt a traves del ingress
+			Comprobando si había que acceder por Ingress o por el LoadBalancer metallb para acceso externo
 
 -----DONE:
-
-
+Añadir seguridad en la conexión con los dispositivos MQTT
+	Utilizar conexiones TLS con cert en el servidor + usr y pwd
+		Fuera de kubernetes:
+			Hacer funcionar MQTT/TLS
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
