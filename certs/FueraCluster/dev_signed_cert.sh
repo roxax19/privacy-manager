@@ -21,6 +21,8 @@ HOST_KEY=$DIR/$NAME.key
 
 [ -f $HOST_KEY ] || openssl genrsa -out $HOST_KEY 2048
 
+openssl rsa -in $HOST_KEY -out $HOST_KEY-nopass.key
+
 HOST_CERT=$DIR/$NAME.crt
 
 if ! [ -f $HOST_CERT ] ; then

@@ -12,9 +12,18 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 			Comprobar MQTT/HTTP/TLS
 			Comprobar usr + pwd
 
+Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metallb
+	Añadir los secretos como objeto api de kubernetes
+	Quitar la comprobación del certificado en las partes sin acceso externo del cluster
+
+
 ---- Doing:
 
-Montar mqtt sobre http fuera de kubernetes
+Montar mqtt sobre http fuera de kubernetes.
+Problemas con certificado: crear de 0 y cambiar CA dentro de la configuración del broker
+
+
+---- Questions:
 Como saber que ip/nombre de dns poner en el certificado?
 
 -----DONE:
