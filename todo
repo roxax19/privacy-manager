@@ -19,7 +19,7 @@ Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metal
 
 ---- Doing:
 
-Montar mqtt sobre http fuera de kubernetes.
+Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
 Problemas con certificado: crear de 0 y cambiar CA dentro de la configuración del broker
 
 
