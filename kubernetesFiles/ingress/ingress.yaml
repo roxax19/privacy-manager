@@ -25,37 +25,39 @@ spec:
             serviceName: auth
             servicePort: 8081
 ---
-#the name of the configmap is obtained from the microk8s ingress controller
-#This allow us to pass tcp traffic through the Ingress
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-ingress-tcp-microk8s-conf
-  namespace: ingress
-data:
-  8083: "default/mosquitto-broker:1883"
----
-#We obtaine this DaemonSet from the microk8s ingress controller too
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: nginx-ingress-microk8s-controller
-  namespace: ingress
-spec:
-  selector:
-    matchLabels:
-      name: nginx-ingress-microk8s-controller
-  template:
-    metadata:
-      labels:
-        name: nginx-ingress-microk8s-controller
-    spec:
-      containers:
-      - name: nginx-ingress-microk8s
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        - name: prxy-tcp-8083
-          containerPort: 8083
-          hostPort: 1883
-          protocol: TCP
+#HAY QUE MDIFICAR ESTAS LINEAS EN /snap/microk8s/(NUM)/action/ingress.yaml
+
+# #the name of the configmap is obtained from the microk8s ingress controller
+# #This allow us to pass tcp traffic through the Ingress
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: nginx-ingress-tcp-microk8s-conf
+#   namespace: ingress
+# data:
+#   8083: "default/mosquitto-broker:1883"
+# ---
+# #We obtaine this DaemonSet from the microk8s ingress controller too
+# apiVersion: apps/v1
+# kind: DaemonSet
+# metadata:
+#   name: nginx-ingress-microk8s-controller
+#   namespace: ingress
+# spec:
+#   selector:
+#     matchLabels:
+#       name: nginx-ingress-microk8s-controller
+#   template:
+#     metadata:
+#       labels:
+#         name: nginx-ingress-microk8s-controller
+#     spec:
+#       containers:
+#       - name: nginx-ingress-microk8s
+#         ports:
+#         - containerPort: 80
+#         - containerPort: 443
+#         - name: prxy-tcp-8083
+#           containerPort: 8083
+#           hostPort: 1883
+#           protocol: TCP
