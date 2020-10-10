@@ -1,0 +1,7 @@
+Para exponer TCP:
+
+Hay que modificar el ingress.yaml que hay en la carpeta
+/snap/microk8s/(NUM)/actions
+siguiendo las instrucciones que hay en la web de microk8s en el appartado del addon Ingress.
+Para modificar un archivo en snap, hay que realizar los siguientes pasos:
+
