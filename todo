@@ -20,7 +20,7 @@ Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metal
 ---- Doing:
 
 Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
-	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura
+	Hay que arreglar conectarse al servicio tcp expuesto
 Problemas con certificado: crear de 0 y cambiar CA dentro de la configuración del broker
 
 
@@ -34,6 +34,9 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 			Hacer funcionar MQTT/TLS
 		Dentro de kubernetes:
 		Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
+
+Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
+	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura --> ver comandos
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
