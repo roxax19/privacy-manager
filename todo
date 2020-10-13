@@ -19,10 +19,10 @@ Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metal
 
 ---- Doing:
 
-Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
-	Hay que arreglar conectarse al servicio tcp expuesto
-Problemas con certificado: crear de 0 y cambiar CA dentro de la configuración del broker
+Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker
 
+Probar a acceder desde la red de casa a los servicios expuestos en el pc.
+	Si funciona, proner la configuracion probada fuera del cluster en el broker interior
 
 ---- Questions:
 Como saber que ip/nombre de dns poner en el certificado?
@@ -37,6 +37,7 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 
 Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
 	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura --> ver comandos
+	Hay que arreglar conectarse al servicio tcp expuesto --> habia que volver a activar el addon ingress de microk8s para que se actualizaran los yaml modificados
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
