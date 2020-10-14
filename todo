@@ -3,13 +3,10 @@
 -----To do:
 
 Añadir seguridad en la conexión con los dispositivos MQTT
-	Utilizar conexiones TLS con cert en el servidor + usr y pwd
-	¿Es necesario introducir MQTT sobre HTTP para el Ingress?
 		Dentro de kubernetes:				
 			Introducir una nueva configuracion dentro de la imagen
-			Mirar problemas con Ingress y Common Name (-tls_passtrough)
+			Mirar certificados Ingress
 		Fuera de kubernetes:
-			Comprobar MQTT/HTTP/TLS
 			Comprobar usr + pwd
 
 Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metallb
@@ -19,21 +16,24 @@ Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metal
 
 ---- Doing:
 
-Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
-	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura
-Problemas con certificado: crear de 0 y cambiar CA dentro de la configuración del broker
-
+Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker
+Mover la configuración TLS al broker interior en kubernetes
 
 ---- Questions:
 Como saber que ip/nombre de dns poner en el certificado?
 
 -----DONE:
-Añadir seguridad en la conexión con los dispositivos MQTT
-	Utilizar conexiones TLS con cert en el servidor + usr y pwd
-		Fuera de kubernetes:
-			Hacer funcionar MQTT/TLS
-		Dentro de kubernetes:
-		Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
+
+Utilizar conexiones TLS con cert en el servidor
+	Fuera de kubernetes:
+		Hacer funcionar MQTT/TLS --> No hace falta sobre HTTP
+	Dentro de kubernetes:
+	Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
+
+Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
+	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura --> ver comandos
+	Hay que arreglar conectarse al servicio tcp expuesto --> habia que volver a activar el addon ingress de microk8s para que se actualizaran los yaml modificados
+	Probar a acceder desde otro dispositivo en la red de casa a los servicios expuestos en el pc. --> funciona
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
