@@ -35,4 +35,6 @@ Hay que usar python 2.7
 
 He instalado adons de microk8s: dns, dashboard, ingress, storage, metallb
 
+He cambiado los archivos ingress del snap de microk8s para exponer el contenedor mqtt (ver ingress y sh para hacerlo)
+
 

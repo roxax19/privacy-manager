@@ -16,6 +16,16 @@ spec:
       containers:
       - name: mosquito-broker
         image: eclipse-mosquitto:1.6.7
+        volumeMounts:
+          - mountPath: /mosquitto/config/
+            name: config-volume
+      volumes:
+        - name: config-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/Proyectos/privacy-manager/mounts/mosquitto
+            # this field is optional
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

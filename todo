@@ -13,11 +13,15 @@ Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metal
 	Añadir los secretos como objeto api de kubernetes
 	Quitar la comprobación del certificado en las partes sin acceso externo del cluster
 
+Cosas para mejorar la implementación:
+	Utilizar Ingress sin la opción ssl passthrough
+	Utilizar configmaps a la hora de mandar archivos y ¿comandos? a las imagenes, asi no tenemos que crear imagenes personalizadas
 
 ---- Doing:
 
 Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker
 Mover la configuración TLS al broker interior en kubernetes
+	Se ha introducido de forma regulera, hacerlo ahora con configmaps?
 
 ---- Questions:
 Como saber que ip/nombre de dns poner en el certificado?
