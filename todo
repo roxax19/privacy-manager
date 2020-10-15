@@ -2,45 +2,41 @@
 
 -----To do:
 
-Añadir seguridad en la conexión con los dispositivos MQTT
-		Dentro de kubernetes:				
-			Introducir una nueva configuracion dentro de la imagen
-			Mirar certificados Ingress
-		Fuera de kubernetes:
-			Comprobar usr + pwd
-
-Cambiar métodos de acceso al cluster: Transformar todo en ingress, quitar metallb
-	Añadir los secretos como objeto api de kubernetes
-	Quitar la comprobación del certificado en las partes sin acceso externo del cluster
-
-Cosas para mejorar la implementación:
-	Utilizar Ingress sin la opción ssl passthrough
+Cosas para mejorar la implementación en general:
+	Utilizar Ingress sin la opción ssl passthrough para las APIs
+		Ver como funciona la conexion con el extremo ssl terminando en Ingress, ver CN de certificados
 	Utilizar configmaps a la hora de mandar archivos y ¿comandos? a las imagenes, asi no tenemos que crear imagenes personalizadas
 
 ---- Doing:
 
-En la torre nos da fallo mk8 al intentar actualizar ingress, mirar linea 57		
+En la torre nos da fallo mk8 al intentar actualizar ingress, mirar linea 57
+	Puede que detecte un archivo como varios, mirar linea 57 dentro de la definicion del DaemonSet
+	Hacer snap info microk8s y comparar con portatil
+	Probar el boker en k8 en la torre				
 
-Mover la configuración TLS al broker interior en kubernetes
-	Se ha introducido de forma regulera, hacerlo ahora con configmaps?
-
----- Questions:
+---- Dudas:
 Como saber que ip/nombre de dns poner en el certificado?
 
 -----DONE:
 
-Utilizar conexiones TLS con cert en el servidor
+Añadir seguridad en la conexión con los dispositivos MQTT
 	Fuera de kubernetes:
-		Hacer funcionar MQTT/TLS --> No hace falta sobre HTTP
+		Hacer funcionar MQTT con TLS --> funciona, No hace falta sobre HTTP
+		Comprobar usr + pwd sin TLS, cuando funcione probarlo junto con TLS --> funciona
 	Dentro de kubernetes:
-	Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
-
-Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker--> arreglado
+		Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
+		Introducir configuracion TLS dentro de la imagen --> hecho con mounts pero sin configmaps (cambiar cuando todo funcione?)
+			La manera correcta seria utilizar configmaps para poder hacer las aplicaciones escalables a varios nodos, pero usando un solo nodo asi es mas facil
+		Añadir TLS + usr/pwd al broker --> hecho		
 
 Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
 	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura --> ver comandos
 	Hay que arreglar conectarse al servicio tcp expuesto --> habia que volver a activar el addon ingress de microk8s para que se actualizaran los yaml modificados
-	Probar a acceder desde otro dispositivo en la red de casa a los servicios expuestos en el pc. --> funciona
+	Probar a acceder desde otro dispositivo en la red de casa a los servicios expuestos en el pc. --> funciona en portatil, no en torre (esta pendiente)
+
+Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker--> arreglado
+
+
 	
 
 --------------------------------------- Curso 19/20 TFG ENTREGADO ---------------------------------------
