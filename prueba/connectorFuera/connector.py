@@ -52,19 +52,16 @@ def on_message(client, userdata, msg):
     else:
       print('No se han introducido los datos correctamente')
 
-# Creamos las propieddes del cliente
+# Nos conectamos al mqtt broker
 client = mqtt.Client(client_id="Connector")
 client.on_connect = on_connect
 client.on_message = on_message
 
-# Configuramos la conexion por TLS y con usr + pwd
 client.tls_set(ca_certs="ssl/myCA.pem", cert_reqs=mqtt.ssl.CERT_REQUIRED)
 client.username_pw_set("manuel", password="manuel")
+client.connect("broker", 8883, 60)
 
-# Nos conectamos con el broker
-client.connect("10.152.183.240", 1883, 60)
-
-# Nos conectamos a la base de datos
+#Nos conectamos a la base de datos
 mydb = mysql.connector.connect(
   host="10.152.183.137", #master
   port="3306",

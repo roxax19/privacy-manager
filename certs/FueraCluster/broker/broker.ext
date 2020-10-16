@@ -6,3 +6,4 @@ subjectAltName = @alt_names
 
 [alt_names]
 DNS.1 = broker
+DNS.2 = 10.152.183.240

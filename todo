@@ -9,10 +9,8 @@ Cosas para mejorar la implementación en general:
 
 ---- Doing:
 
-En la torre nos da fallo mk8 al intentar actualizar ingress, mirar linea 57
-	Puede que detecte un archivo como varios, mirar linea 57 dentro de la definicion del DaemonSet
-	Hacer snap info microk8s y comparar con portatil
-	Probar el boker en k8 en la torre				
+Hay que cambiar el connector python de dentro del cluster para que use tls y un usuario autorizado
+	Hay que crear un nuevo certificado para el broker y que uno de sus nombres de dns sea la direccion que utilia dentro de kubernetes
 
 ---- Dudas:
 Como saber que ip/nombre de dns poner en el certificado?
@@ -35,6 +33,10 @@ Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer 
 	Probar a acceder desde otro dispositivo en la red de casa a los servicios expuestos en el pc. --> funciona en portatil, no en torre (esta pendiente)
 
 Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 0 y cambiar CA dentro de la configuración del broker--> arreglado
+
+En la torre da fallo mk8 al intentar actualizar ingress, mirar linea 57
+	Hacer snap info microk8s y comparar con portatil --> habia una version distinta de microk8s, se ha actualizado.
+
 
 
 	
