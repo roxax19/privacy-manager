@@ -2,15 +2,12 @@
 
 -----To do:
 
-Cosas para mejorar la implementación en general:
-	Utilizar Ingress sin la opción ssl passthrough para las APIs
-		Ver como funciona la conexion con el extremo ssl terminando en Ingress, ver CN de certificados
-	Utilizar configmaps a la hora de mandar archivos y ¿comandos? a las imagenes, asi no tenemos que crear imagenes personalizadas
+Utilizar configmaps a la hora de mandar archivos y ¿comandos? a las imagenes, asi no tenemos que crear imagenes personalizadas
 
 ---- Doing:
 
-Hay que cambiar el connector python de dentro del cluster para que use tls y un usuario autorizado
-	Hay que crear un nuevo certificado para el broker y que uno de sus nombres de dns sea la direccion que utilia dentro de kubernetes
+Utilizar Ingress sin la opción ssl passthrough para las APIs
+	Ver como funciona la conexion con el extremo ssl terminando en Ingress, ver CN de certificados
 
 ---- Dudas:
 Como saber que ip/nombre de dns poner en el certificado?
@@ -25,7 +22,9 @@ Añadir seguridad en la conexión con los dispositivos MQTT
 		Investigando sobre Metallb e Ingress --> Vamos a realizar el acceso al cluster por ingress, quitamos metallb.
 		Introducir configuracion TLS dentro de la imagen --> hecho con mounts pero sin configmaps (cambiar cuando todo funcione?)
 			La manera correcta seria utilizar configmaps para poder hacer las aplicaciones escalables a varios nodos, pero usando un solo nodo asi es mas facil
-		Añadir TLS + usr/pwd al broker --> hecho		
+		Añadir TLS + usr/pwd al broker --> hecho
+		Hay que cambiar el connector python de dentro del cluster para que use tls y un usuario autorizado --> hecho
+		Hay que crear un nuevo certificado para el broker y que uno de sus nombres de dns sea la direccion que utilia dentro de kubernetes --> hecho		
 
 Montar mqtt sobre http fuera de kubernetes --> No hace falta, se pueden exponer servicios tcp en el ingress. Probar con la red de casa.
 	Hay que modificar los archivos de microk8s en snap, y para ello hay que desmontar el sistema de archivos porque es de solo lectura --> ver comandos
