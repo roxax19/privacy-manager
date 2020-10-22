@@ -2,12 +2,20 @@
 
 -----To do:
 
+Utilizar Ingress sin la opción ssl passthrough para las APIs
+	Crear un objeto de certificado en la API de kubernetes.
+	¿Hace falta uno por cada servicio, o con uno para el ingress esta bien?
+	Ver como adjuntar el objeto creado al ingress.
+	¿Quitar el tls interno que ya existe? Ver si colisiona o algo parecido. Si no colisiona, lo dejamos.
+
 Utilizar configmaps a la hora de mandar archivos y ¿comandos? a las imagenes, asi no tenemos que crear imagenes personalizadas
 
 ---- Doing:
 
 Utilizar Ingress sin la opción ssl passthrough para las APIs
-	Ver como funciona la conexion con el extremo ssl terminando en Ingress, ver CN de certificados
+	Crear un objeto de certificado en la API de kubernetes.
+	¿Hace falta uno por cada servicio, o con uno para el ingress esta bien? --> Con uno esta bien, accedemos segun el path a los servicios, por lo que lo podemos considerar un solo servidor
+
 
 ---- Dudas:
 Como saber que ip/nombre de dns poner en el certificado?
