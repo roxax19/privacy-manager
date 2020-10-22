@@ -12,8 +12,41 @@ You can easily get this with microk8s, and its addons. If you are using microk8s
 
 You have to add the following lines to your ingress controller. This will allow you to expose tcp services like mosquitto in your Ingress.
 
+```
+#This allow us to pass tcp traffic through the Ingress
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-tcp-microk8s-conf
+  namespace: ingress
+data:
+  8083: "default/mosquitto-broker:1883"
+---
+#This goes inside the DaemonSet
+kind: DaemonSet
+metadata:
+  ...
+spec:
+  selector:
+    ...
+  template:
+    ...
+    spec:
+      containers:
+      - name: nginx-ingress-microk8s
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        #This right here
+        - name: prxy-tcp-8083
+          containerPort: 8083
+          hostPort: 1883
+          protocol: TCP
 
-## Step 2
+```
+To update the info on the Ingress Controller, disable and enable again the Ingress addon.
+
+## Step 3
 Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
 
 ```
@@ -30,10 +63,10 @@ kubernetesFiles/nodejs/priv.yaml
 
 You have to put the path to the folders inside mounts/ on this git.
 
-## Step 3
+## Step 4
 For deploying the whole system, you have to execute (if you are working with microk8s) kubernetesFiles/execute_yaml.sh. If you aren't, you can copy the kubectl commands and execute in a terminal.
 
-## Step 4
+## Step 5
 For it to work correctly, you have to enter the phpMyAdmin pod, and create the database and the tables with de following commands:
 
 - Create database
