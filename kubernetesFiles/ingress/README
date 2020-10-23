@@ -1,0 +1,22 @@
+Para exponer TCP:
+
+Hay que modificar el ingress.yaml que hay en la carpeta
+/snap/microk8s/(NUM)/actions
+siguiendo las instrucciones que hay en la web de microk8s en el appartado del addon Ingress.
+Visitar https://askubuntu.com/questions/1046606/cannot-edit-system-file-snap-phpstorm-even-with-root-account-in-ubuntu-18-04 para ver como modificar snaps
+
+comandos para realizar la modificacion
+
+mount | grep microk8s
+sudo umount /snap/microk8s/1668 
+sudo unsquashfs /var/lib/snapd/snaps/
+
+modificamos lo que queramos y 
+
+sudo mksquashfs squashfs-root microk8s_1668.snap
+sudo cp microk8s_1668.snap /var/lib/snapd/snaps/microk8s_1668.snap
+sudo mount -t squashfs -o ro,nodev,relatime,x-gdu.hide /var/lib/snapd/snaps/microk8s_1668.snap /snap/microk8s/1668
+
+PARA QUE LOS CAMBIOS TENGAN EFECTO (se actualicen los .yaml), VOLVER A EJECUTAR:
+microk8s.enable ingress
+

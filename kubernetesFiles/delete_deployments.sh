@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 microk8s.kubectl delete -n default deployment gen
 microk8s.kubectl delete -n default deployment api-rest
 microk8s.kubectl delete -n default deployment auth
