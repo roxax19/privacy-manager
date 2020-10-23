@@ -10,7 +10,7 @@ You can easily get this with microk8s, and its addons. If you are using microk8s
 
 ## Step 2
 
-You have to add the following lines to your ingress controller. This will allow you to expose tcp services like mosquitto in your Ingress.
+You have to add the following lines in your ingress controller. This will allow you to expose tcp services like mosquitto in your Ingress.
 
 ```
 #This allow us to pass tcp traffic through the Ingress
@@ -44,9 +44,37 @@ spec:
           protocol: TCP
 
 ```
-To update the info on the Ingress Controller, disable and enable again the Ingress addon.
+If you are using microk8s installed through snap, you can use the comands in /extra/snpmk8 to unmount and mount the volume where the Ingress Controller is located. To update the info on the Ingress Controller, disable and enable again the Ingress addon.
 
 ## Step 3
+
+You can change the certificate used in TLS by Ingress.
+First, you have to create a secret with the cert in your kubernetes cluster. You can add it with this command:
+```
+kubectl create secret tls ${CERT_NAME} --key ${KEY_FILE} --cert ${CERT_FILE}
+```
+
+Then, you need to add this line in your Ingress Controller:
+```
+#This goes inside the DaemonSet
+kind: DaemonSet
+metadata:
+  ...
+spec:
+  ...
+  template:
+    ...
+    spec:
+      ...
+      containers:
+        ...
+        args
+        ...
+        - --default-ssl-certificate=default/${CERT_NAME}
+```
+
+
+## Step 4
 Kubernetes doesn't accept relative pathing inside, so you will have to change the volume hostpath of the following files:
 
 ```
@@ -63,10 +91,10 @@ kubernetesFiles/nodejs/priv.yaml
 
 You have to put the path to the folders inside mounts/ on this git.
 
-## Step 4
+## Step 5
 For deploying the whole system, you have to execute (if you are working with microk8s) kubernetesFiles/execute_yaml.sh. If you aren't, you can copy the kubectl commands and execute in a terminal.
 
-## Step 5
+## Step 6
 For it to work correctly, you have to enter the phpMyAdmin pod, and create the database and the tables with de following commands:
 
 - Create database

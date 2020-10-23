@@ -33,8 +33,9 @@ Dentro de la carpeta de donde esta el servidor:
 
 Hay que usar python 2.7
 
-He instalado adons de microk8s: dns, dashboard, ingress, storage, metallb
+He instalado addons de microk8s: dns, dashboard, ingress, storage, metallb
 
-He cambiado los archivos ingress del snap de microk8s para exponer el contenedor mqtt (ver ingress y sh para hacerlo)
+He cambiado los archivos ingress del snap de microk8s para exponer el contenedor mqtt (ver readme Step 2)
+He creado un secreto con el certificado para el ingress (ver readme Step 3)
 
 
