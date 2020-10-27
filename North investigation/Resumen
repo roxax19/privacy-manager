@@ -1,0 +1,12 @@
+-- Mozilla --
+
+Creo que Mozilla Web Things opera mas a nivel de mqtt, para comunicarse con los dispositivos IoT. La parte de Mozilla Gateway nos sirve para controlar los dispositivos IoT. Al final todo en conjunto sería como el protocolo mqtt, solo que con mas funcionalidad, porque la Api de Mozilla permite definir objetos mas concretos.
+Al final mozilla web things es como un substituto a mqtt. Permite recoger datos y enviar datos a los dispositivos IoT. También permite programar funciones, que es la parte extra. Utilizando solo mqtt se podría programar con un script python. Utilizando mqtt en conjunto con otras cosas como Node-red se podría programar con mayor facilidad. Al final, las dos cosas necesitan de un dispositivo enmedio con un broker como puede ser una Raspberry pi.
+
+Habria que distinguir entre objetos IoT pequeños que son los sensores que se conectan para proporcionar datos, y los nodos "edge" que en el ejemplo sería por poner un ejemplo la raspberry pi.
+
+-- Fiware --
+Investigar sobre cosas que se pueden implementar en fiware. Que es lo extra que nos otorga? Manejo de datos?
+
+-- Dudas en general --
+Que es lo que estamos buscando con esto? Que el sistema sea compatible con muchas plataformas, que significa? Que se pueda desplegar dentro de estas plataformas? Que se pueda comunicar con estas plataformas?--> que es lo que queremos comunicar? Nuestro sistema tiene entrada para usuarios y entrada para IoT. Queremos otra salida para nuestros datos?
