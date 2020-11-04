@@ -2,14 +2,13 @@
 
 -----To do:
 
-Actualizar README y guia de instalacion, dejar bonito y hacer merge con la rama principal
+Añadir NodeRED al proyecto
+	Investigar nodos disponibles y como añadir nodos
+	Investigar que hay dentro de la imagen de node red
+	Investigar que protocolo seguir para imitar objeto IoT de Fiware --> Tener en cuenta que queremos implementar varios tipos de comunicación en funcion de la plataforma que nos conectemos
+		Investigar NGSI y sus modulos en NodeRED --> mirar knowage, parecec algo similar a MQTTfx
 
-
-Utilizar configmaps a la hora de mandar archivos a las imagenes, asi no tenemos que crear imagenes personalizadas
-
----- Doing:
-
-¿Quitar el tls interno que ya existe? Ver si colisiona o algo parecido. Si no colisiona, lo dejamos.
+Investigar que protocolo seguir para imitar objeto IoT de Fiware
 
 ---- Dudas:
 Como saber que ip/nombre de dns poner en el certificado?
@@ -43,6 +42,8 @@ Problemas con certificado (funciona en portatil pero no en torre ¿?): crear de 
 
 En la torre da fallo mk8 al intentar actualizar ingress, mirar linea 57
 	Hacer snap info microk8s y comparar con portatil --> habia una version distinta de microk8s, se ha actualizado.
+
+Actualizar README y guia de instalacion, dejar bonito y hacer merge con la rama principal
 
 
 
