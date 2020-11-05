@@ -7,6 +7,9 @@ Añadir NodeRED al proyecto
 	Investigar que hay dentro de la imagen de node red
 	Investigar que protocolo seguir para imitar objeto IoT de Fiware --> Tener en cuenta que queremos implementar varios tipos de comunicación en funcion de la plataforma que nos conectemos
 		Investigar NGSI y sus modulos en NodeRED --> mirar knowage, parecec algo similar a MQTTfx
+		Ver como crear una identidad a traves de NGSI
+
+	IDEA: bajar un fiware orion broker y comprobar realmente si las cosas se estan haciendo bien
 
 Investigar que protocolo seguir para imitar objeto IoT de Fiware
 
