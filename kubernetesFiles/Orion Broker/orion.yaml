@@ -18,7 +18,7 @@ spec:
         image: fiware/orion:1.12.0
         ports:
         - containerPort: 1026
-        args: ["-dbhost", "localhost"]
+        args: ["-dbhost", "127.0.0.1:27017"]
       - name: orion-mongodb
         image: mongo:3.4
         ports:

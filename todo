@@ -2,6 +2,9 @@
 
 -----To do:
 
+Mejoras generales:
+	Aprender bien a usar el dns dentro de kubernetes
+
 Añadir conexión con distintas plataformas de IoT.
 	Añadir NodeRED al proyecto
 		Investigar nodos disponibles y como añadir nodos
@@ -10,21 +13,23 @@ Añadir conexión con distintas plataformas de IoT.
 
 	Investigar que protocolo seguir para imitar objeto IoT de Fiware
 	
+	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker
+	Mirar IoT Agent for JSON
+	
 	
 
 ---- Doing:
 
 Añadir conexión con distintas plataformas de IoT.
-	Conectar nodeRED fuera con orion broker
-		Investigar api NGSI para ver como funciona
-		
+	Crear un pod con node-red. Añadir los modulos de NGSI		
 		
 
 
 -----DONE:
 
 	Configurar un fiware onion broker para conectarnos realmente, no solo construir teoricamente la salida
-	Instalar nodeRED y nodos NGSI fuera
+		Probar el onion broker creando y pidiendo entidades con curl
+	
 	
 
 Añadir seguridad en la conexión con los dispositivos MQTT
