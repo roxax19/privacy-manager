@@ -6,15 +6,13 @@ Mejoras generales:
 	Aprender bien a usar el dns dentro de kubernetes
 
 Añadir conexión con distintas plataformas de IoT.
-	Añadir NodeRED al proyecto
-		Investigar nodos disponibles y como añadir nodos
-		Investigar que hay dentro de la imagen de node red
-		Investigar que protocolo seguir para imitar objeto IoT de Fiware --> Tener en cuenta que queremos implementar varios tipos de comunicación en funcion de la plataforma que nos conectemos
+	Configurar nodered
+		Leer personas de nuestra base de datos, y enviarlas al orion broker.
+			Como queremos empezar este proceso? api rest desde fuera o administrador? por ejemplo path /fiware para esta plataforma, y otro distinto para las demas
 
-	Investigar que protocolo seguir para imitar objeto IoT de Fiware
 	
 	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker
-	Mirar IoT Agent for JSON
+	
 	
 Hacer un script para subir las cosas a github automaticamente
 	
@@ -22,17 +20,26 @@ Hacer un script para subir las cosas a github automaticamente
 
 ---- Doing:
 
+Configurar nodered
+		Leer personas de nuestra base de datos, y enviarlas al orion broker.
+			Como queremos empezar este proceso? api rest desde fuera o administrador? por ejemplo path /fiware para esta plataforma, y otro distinto para las demas
+
 Añadir conexión con distintas plataformas de IoT.
-	Crear un pod con node-red. Añadir los modulos de NGSI		
+		
 		
 
 
 -----DONE:
 
 	Configurar un fiware onion broker para conectarnos realmente, no solo construir teoricamente la salida
+		Investigar que protocolo seguir para imitar objeto IoT de Fiware --> se puede hacer con http requests
 		Probar el onion broker creando y pidiendo entidades con curl
-	
-	
+	Mirar IoT Agent for JSON --> no hace falta	
+	Añadir NodeRED al proyecto
+		Crear un pod con node-red	
+		Investigar nodos disponibles y como añadir nodos --> Añadir los modulos de NGSI
+		Investigar que hay dentro de la imagen de node red --> los modulos nuevos se instalan en /data
+		NO HACEN FALTA LOS MÓDULOS, SE PUEDE HACER CON HTTP
 
 Añadir seguridad en la conexión con los dispositivos MQTT
 	Fuera de kubernetes:

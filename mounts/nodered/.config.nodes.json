@@ -391,5 +391,72 @@
                 "file": "/usr/src/node-red/node_modules/node-red-node-tail/28-tail.js"
             }
         }
+    },
+    "node-red-contrib-fiware_official": {
+        "name": "node-red-contrib-fiware_official",
+        "version": "1.0.2",
+        "local": true,
+        "nodes": {
+            "Entity": {
+                "name": "Entity",
+                "types": [
+                    "NGSI-Entity"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/entity/entity.js"
+            },
+            "Dataset": {
+                "name": "Dataset",
+                "types": [
+                    "NGSI-Dataset"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/dataset/dataset.js"
+            },
+            "Update": {
+                "name": "Update",
+                "types": [
+                    "NGSI-Update"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/update/update.js"
+            },
+            "Subscription": {
+                "name": "Subscription",
+                "types": [
+                    "NGSI-Subscription"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/subscription/subscription.js"
+            },
+            "v2ToLD": {
+                "name": "v2ToLD",
+                "types": [
+                    "NGSI-v2ToLD"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/v2ToLD/v2ToLD.js"
+            },
+            "Context-Broker": {
+                "name": "Context-Broker",
+                "types": [
+                    "Context-Broker"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-contrib-fiware_official",
+                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/contextbroker/contextbroker.js"
+            }
+        }
     }
 }
