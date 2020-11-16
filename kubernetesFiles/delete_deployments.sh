@@ -7,6 +7,9 @@ microk8s.kubectl delete -n default deployment priv
 microk8s.kubectl delete -n default deployment connector
 microk8s.kubectl delete -n default deployment phpmyadmin-deployment 
 microk8s.kubectl delete -n default deployment mosquitto-broker
+microk8s.kubectl delete -n default deployment orion
+microk8s.kubectl delete -n default deployment node-red
+
 
 microk8s.kubectl delete -n default service gen
 microk8s.kubectl delete -n default service api-rest
@@ -16,7 +19,9 @@ microk8s.kubectl delete -n default service mysql-read
 microk8s.kubectl delete -n default service mysql-master
 microk8s.kubectl delete -n default service phpmyadmin-service
 microk8s.kubectl delete -n default service mysql
-microk8s.kubectl delete -n default service mosquitto-broker 
+microk8s.kubectl delete -n default service mosquitto-broker
+microk8s.kubectl delete -n default service orion
+microk8s.kubectl delete -n default service node-red
 
 
 microk8s.kubectl delete -n default ingress k8s-ingress

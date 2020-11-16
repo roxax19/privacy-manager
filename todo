@@ -7,8 +7,10 @@ Mejoras generales:
 
 Añadir conexión con distintas plataformas de IoT.
 	Configurar nodered
-		Leer personas de nuestra base de datos, y enviarlas al orion broker.
-			Como queremos empezar este proceso? api rest desde fuera o administrador? por ejemplo path /fiware para esta plataforma, y otro distinto para las demas
+		Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
+		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
+		Segunda prueba: coger lo que nos dan los algoritmos, y subirlo a la nube
+		Tercera prueba: Coger los datos tal cual, y seleccionar un grupo en funcion de la ID
 
 	
 	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker
@@ -21,8 +23,13 @@ Hacer un script para subir las cosas a github automaticamente
 ---- Doing:
 
 Configurar nodered
-		Leer personas de nuestra base de datos, y enviarlas al orion broker.
-			Como queremos empezar este proceso? api rest desde fuera o administrador? por ejemplo path /fiware para esta plataforma, y otro distinto para las demas
+	Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
+		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
+			Habria que crear un tipo de objeto por cada persona en este caso
+		
+	MIRAR LO DE LOS DNS
+
+			
 
 Añadir conexión con distintas plataformas de IoT.
 		
