@@ -37,7 +37,8 @@ const agentSSL = new https.Agent({
 
 /*-- Conexion con la base de datos (hecha con "factory function" warper para usar await)-- */
 var dbConfig = {
-	host     : '10.152.183.137', //mysql master
+	//host     : '10.152.183.137', //mysql master
+	host     : 'mysql-master.default.svc.cluster.local',
 	user     : 'root',
 	password : '',
 	database : 'test'
@@ -83,7 +84,9 @@ app.get('/', function(req, res) {
 					res.send(err);
 				});
 		} else if (acceso == 'gen') {
-			var gen = 'https://10.152.183.203:8083';
+			//var gen = 'https://10.152.183.203:8083';
+			var gen = 'https://gen.default.svc.cluster.local:8083';
+			
 			//Hacemos llamada al modulo de generalizar
 			axios
 				.get(gen, { httpsAgent: agentSSL })

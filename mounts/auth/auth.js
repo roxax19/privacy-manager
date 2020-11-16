@@ -28,7 +28,8 @@ const options = {
 
 /*-- Conexion con la base de datos (hecha con "factory function" warper para usar await)-- */
 var dbConfig = {
-	host     : '10.152.183.232', //mysql read
+	//host     : '10.152.183.232', //mysql read
+	host     : 'mysql-master.default.svc.cluster.local',
 	user     : 'root',
 	password : '',
 	database : 'test'

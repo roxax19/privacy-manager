@@ -32,7 +32,8 @@ const agentSSL = new https.Agent({
 
 /*-- Conexion con la base de datos -- */
 var con = mysql.createConnection({
-	host     : '10.152.183.137',
+	//host     : '10.152.183.137',
+	host     : 'mysql-master.default.svc.cluster.local',
 	user     : 'root',
 	password : '',
 	database : 'test'
@@ -138,7 +139,8 @@ async function comprobarToken(token) {
 	//Hacemos una petición a auth, y le pasamos el mensaje.
 
 	var respuesta = '';
-	var auth = 'https://10.152.183.201:8081';
+	//var auth = 'https://10.152.183.201:8081';
+	var auth = 'https://auth.default.svc.cluster.local:8081'
 
 	await axios
 		.post(
@@ -166,7 +168,8 @@ async function envioGETPriv(clase, tipoDato) {
 	//Por ahora implementamos el GET
 
 	var respuesta = '';
-	var priv = 'https://10.152.183.202:8082';
+	//var priv = 'https://10.152.183.202:8082';
+	var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
 		clase    : clase,
 		tipoDato : tipoDato
@@ -194,7 +197,8 @@ async function envioPOSTPriv(clase, datos) {
 	//Por ahora implementamos el POST
 
 	var respuesta = '';
-	var priv = 'https://10.152.183.202:8082';
+	//var priv = 'https://10.152.183.202:8082';
+	var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
 		clase : clase,
 		datos : datos
@@ -221,7 +225,8 @@ async function envioDELETEPriv(clase, id) {
 	//Por ahora implementamos el DELETE
 
 	var respuesta = '';
-	var priv = 'https://10.152.183.202:8082';
+	//var priv = 'https://10.152.183.202:8082';
+	var priv = 'https://priv.default.svc.cluster.local:8082';
 	var data = {
 		clase : clase,
 		id    : id

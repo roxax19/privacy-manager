@@ -196,7 +196,8 @@ def script():
     #Nos conectamos a la base de datos
     #Este no tendría por que conectarse al master porque solo lee datos
     mydb = mysql.connector.connect(
-    host="10.152.183.232", #mysql read
+    #host="10.152.183.232", #mysql read
+    host="mysql-master.default.svc.cluster.local",
     port="3306",
     user="root",
     passwd="",
