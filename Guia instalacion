@@ -38,4 +38,4 @@ He instalado addons de microk8s: dns dashboard ingress storage metallb
 He cambiado los archivos ingress del snap de microk8s para exponer el contenedor mqtt (ver readme Step 2)
 He creado un secreto con el certificado para el ingress (ver readme Step 3)
 
-
+Para instalar moduos en el nodered: acceder como root a los pods: https://github.com/ubuntu/microk8s/issues/841

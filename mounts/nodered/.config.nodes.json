@@ -1,7 +1,7 @@
 {
     "node-red": {
         "name": "node-red",
-        "version": "1.2.3",
+        "version": "1.2.5",
         "local": false,
         "nodes": {
             "inject": {
@@ -392,70 +392,21 @@
             }
         }
     },
-    "node-red-contrib-fiware_official": {
-        "name": "node-red-contrib-fiware_official",
-        "version": "1.0.2",
+    "node-red-node-mysql": {
+        "name": "node-red-node-mysql",
+        "version": "0.1.1",
         "local": true,
         "nodes": {
-            "Entity": {
-                "name": "Entity",
+            "mysql": {
+                "name": "mysql",
                 "types": [
-                    "NGSI-Entity"
+                    "MySQLdatabase",
+                    "mysql"
                 ],
                 "enabled": true,
                 "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/entity/entity.js"
-            },
-            "Dataset": {
-                "name": "Dataset",
-                "types": [
-                    "NGSI-Dataset"
-                ],
-                "enabled": true,
-                "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/dataset/dataset.js"
-            },
-            "Update": {
-                "name": "Update",
-                "types": [
-                    "NGSI-Update"
-                ],
-                "enabled": true,
-                "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/update/update.js"
-            },
-            "Subscription": {
-                "name": "Subscription",
-                "types": [
-                    "NGSI-Subscription"
-                ],
-                "enabled": true,
-                "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/subscription/subscription.js"
-            },
-            "v2ToLD": {
-                "name": "v2ToLD",
-                "types": [
-                    "NGSI-v2ToLD"
-                ],
-                "enabled": true,
-                "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/v2ToLD/v2ToLD.js"
-            },
-            "Context-Broker": {
-                "name": "Context-Broker",
-                "types": [
-                    "Context-Broker"
-                ],
-                "enabled": true,
-                "local": true,
-                "module": "node-red-contrib-fiware_official",
-                "file": "/data/node_modules/node-red-contrib-fiware_official/src/nodes/NGSI/contextbroker/contextbroker.js"
+                "module": "node-red-node-mysql",
+                "file": "/data/node_modules/node-red-node-mysql/68-mysql.js"
             }
         }
     }

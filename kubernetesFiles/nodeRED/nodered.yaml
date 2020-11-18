@@ -22,6 +22,9 @@ spec:
           image: nodered/node-red
           ports:
           - containerPort: 1880
+          env:
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
           volumeMounts:
             - mountPath: /data
               name: test-volume
