@@ -391,5 +391,23 @@
                 "file": "/usr/src/node-red/node_modules/node-red-node-tail/28-tail.js"
             }
         }
+    },
+    "node-red-node-mysql": {
+        "name": "node-red-node-mysql",
+        "version": "0.1.1",
+        "local": true,
+        "nodes": {
+            "mysql": {
+                "name": "mysql",
+                "types": [
+                    "MySQLdatabase",
+                    "mysql"
+                ],
+                "enabled": true,
+                "local": true,
+                "module": "node-red-node-mysql",
+                "file": "/data/node_modules/node-red-node-mysql/68-mysql.js"
+            }
+        }
     }
 }

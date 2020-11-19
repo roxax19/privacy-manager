@@ -23,6 +23,8 @@ Configurar nodered
 		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
 			Habria que crear un tipo de objeto por cada persona en este caso
 				Dibujar en papel las correspondencias entre api fiware y api-rest y programas en nodered
+					Depende de los parametros de la respuesta obtenida de api-ret
+						If nombre string, if nombre *, if count
 		
 
 			
