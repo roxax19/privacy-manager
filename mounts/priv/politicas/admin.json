@@ -9,7 +9,7 @@
 				"all"
 			],
 			"privacyMethod": [
-				"gen"
+				"exact"
 			]
 		},
 		{

@@ -8,8 +8,7 @@ Mejoras generales:
 Añadir conexión con distintas plataformas de IoT.
 	Configurar nodered
 		Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
-		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
-		Segunda prueba: coger lo que nos dan los algoritmos, y subirlo a la nube
+		
 		Tercera prueba: Coger los datos tal cual, y seleccionar un grupo en funcion de la ID
 	Cuando todo funcione, añadir las librerias instaladas en nodered en la imagen de docker.
 
@@ -20,11 +19,7 @@ Añadir conexión con distintas plataformas de IoT.
 
 Configurar nodered
 	Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
-		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
-			Habria que crear un tipo de objeto por cada persona en este caso
-				Dibujar en papel las correspondencias entre api fiware y api-rest y programas en nodered
-					Depende de los parametros de la respuesta obtenida de api-ret
-						If nombre string, if nombre *, if count
+		Corregir los id de los archivos que subimos al fiware
 		
 
 			
@@ -35,6 +30,10 @@ Añadir conexión con distintas plataformas de IoT.
 
 
 -----DONE:
+
+		Segunda prueba: coger lo que nos dan los algoritmos, y subirlo a la nube
+		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
+			Habria que crear un tipo de objeto por cada persona en este caso
 
 	Configurar un fiware onion broker para conectarnos realmente, no solo construir teoricamente la salida
 		Investigar que protocolo seguir para imitar objeto IoT de Fiware --> se puede hacer con http requests
