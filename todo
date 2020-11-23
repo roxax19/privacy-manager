@@ -20,6 +20,8 @@ Añadir conexión con distintas plataformas de IoT.
 Configurar nodered
 	Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
 		Corregir los id de los archivos que subimos al fiware
+			Una idea es sobreescribir siempre usando update
+			La otra idea es devolver siempre el id de la base de datos, y coger ese id
 		
 
 			
