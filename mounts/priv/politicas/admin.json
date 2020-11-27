@@ -9,7 +9,7 @@
 				"all"
 			],
 			"privacyMethod": [
-				"maxNoise"
+				"exact"
 			]
 		},
 		{
