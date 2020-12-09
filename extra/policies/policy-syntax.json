@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft/2019-09/schema",
+  "title": "Policy",
+  "type": "object",
+  "required": [
+    "id",
+    "max",
+    "rules"
+  ],
+  "properties": {
+    "id": {
+      "type": "number",
+      "description": "Policy id"
+    },
+    "max": {
+      "type": "number",
+      "description": "Max number of rules"
+    },
+    "rules": {
+      "type": "array",
+      "description": "List of policy rules",
+      "items": {
+        "type": "object",
+        "description": "A policy rule",
+        "required": [
+          "action_type"
+        ],
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "PUSH",
+              "DELETE"
+            ]
+          },
+          "privacy_method": {
+            "type": "string",
+            "enum": [
+              "Exact",
+              "MinNoise",
+              "MedNoise",
+              "MaxNoise",
+              "Generalization",
+              "Encrypted",
+              "Filtered"
+            ]
+          },
+          "resource": {
+            "type": "string",
+            "description": "A query for data"
+          },
+          "filter": {
+            "type": "string",
+            "description": "A filter for the query"
+          },
+          "conditions": {
+            "type": "array",
+            "description": "Policy conditions",
+            "items": {
+              "type": "object",
+              "description": "Policy condition",
+              "properties": {
+                "requester": {
+                  "type": "object",
+                  "description": "Conditions for requester",
+                  "properties": {
+                    "role": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "$ref": "https://geojson.org/schema/Feature.json"
+                    },
+                    "purpose": {
+                      "type": "string"
+                    },
+                    "max_requests": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "context": {
+                  "type": "object",
+                  "description": "Conditions for context",
+                  "properties": {
+                    "timeofday": {
+                      "type": "string"
+                    },
+                    "data_type": {
+                      "description": "Can be any value - string, number, boolean, array or object"
+                    },
+                    "granularity": {
+                      "type": "string"
+                    },
+                    "data_last_modification_dates": {
+                      "type": "array",
+                      "description": "List of modification dates for data to be accessed/pushed",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "data_location": {
+                      "type": "array",
+                      "description": "List of possible locations from which the data can be accessed",
+                      "items": {
+                        "type": "string"
+                      },
+                      "enum": [
+                        "cloud",
+                        "edge",
+                        "device"
+                      ]
+                    }
+                  }
+                },
+                "edge": {
+                  "type": "object",
+                  "description": "Conditions for node",
+                  "properties": {
+                    "layer": {
+                      "type": "number",
+                      "description": "Hierarchical distance to the data sources"
+                    },
+                    "Hw": {
+                      "type": "array",
+                      "description": "List of hw. elements (e.g. TPM, CPU,GPU, etc.)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "Sw": {
+                      "type": "array",
+                      "description": "List of sw. elements (e.g. Pytorch, Hypervisors, etc.)",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "connectivity": {
+                      "description": "Connected",
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

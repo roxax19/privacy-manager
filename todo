@@ -1,50 +1,41 @@
 ------------------------------------------ Curso 2020/21 --------------------------------------------
 
------To do:
-
-Mejoras generales:
-	Aprender bien a usar el dns dentro de kubernetes
+-----To do:		
 
 Añadir conexión con distintas plataformas de IoT.
-	Configurar nodered
-		Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
-		
-		Tercera prueba: Coger los datos tal cual, y seleccionar un grupo en funcion de la ID
-	Cuando todo funcione, añadir las librerias instaladas en nodered en la imagen de docker.
-
+	Implementar la APi para Fiware --> nodeRed
+		Mejorar tratamiento de datos ya subidos. Necesitas establecer un buen sistema de ids
 	
-	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker	
+	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker
+	
+Mejora de las políticas de privacidad
 
 ---- Doing:
 
-Configurar nodered
-	Utilizar las apis que ya tenemos para sacar los datos, para crear objetos que enviar al fiware
-		Corregir los id de los archivos que subimos al fiware --> para simplificar, vamos a eliminar y volver a escribir siempre con nuevos ids
-			
-
-Añadir conexión con distintas plataformas de IoT.
-		
+Mejora de las políticas de privacidad
+	Crear entorno de pruebas fuera del cluster		
 		
 
 
 -----DONE:
-
-		Segunda prueba: coger lo que nos dan los algoritmos, y subirlo a la nube
-		Primera prueba: coger lo que tenemos dentro de la base de datos, y subirlo tal cual a la nube
-			Habria que crear un tipo de objeto por cada persona en este caso
-
-	Configurar un fiware onion broker para conectarnos realmente, no solo construir teoricamente la salida
-		Investigar que protocolo seguir para imitar objeto IoT de Fiware --> se puede hacer con http requests
-		Probar el onion broker creando y pidiendo entidades con curl
-	Mirar IoT Agent for JSON --> no hace falta	
-	Añadir NodeRED al proyecto
+Añadir conexión con distintas plataformas de IoT.
+	Implementar la APi para Fiware --> nodeRed
+		Añadir NodeRED al proyecto
 		Crear un pod con node-red	
 		Investigar nodos disponibles y como añadir nodos --> Añadir los modulos de NGSI
 		Investigar que hay dentro de la imagen de node red --> los modulos nuevos se instalan en /data
 		NO HACEN FALTA LOS MÓDULOS, SE PUEDE HACER CON HTTP
+			Implementar GET, POST y DELETE
+		
+		Configurar un fiware onion broker para conectarnos realmente, no solo construir teoricamente la salida
+		Investigar que protocolo seguir para imitar objeto IoT de Fiware --> se puede hacer con http requests
+		Probar el onion broker creando y pidiendo entidades con curl
+		Mirar IoT Agent for JSON --> no hace falta		
+
 		
 Extras para mejoras de funcionalidad
 	Cambiadas las direcciones y los certificados a los nombres de dns
+	Aprender bien a usar el dns dentro de kubernetes
 
 Añadir seguridad en la conexión con los dispositivos MQTT
 	Fuera de kubernetes:

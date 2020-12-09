@@ -22,7 +22,7 @@ He instalado apt install nodejs
 he instalado apt install npm
 (mirar guia pagina, te dice como bajarte la ultima version LTS)
 Dentro de la carpeta de donde esta el servidor:
-	He instalado un modulo mysql con npm install mysql
+	He instalado npm install mysql
 	He instalado npm install express necesario para facilitar las respuestas a los get y los post
 	He instalado npm install body-parser necesario para obtener los parametros del post
 	He instalado npm install helmet para poner HSTS

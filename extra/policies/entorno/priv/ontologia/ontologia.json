@@ -1,0 +1,51 @@
+{
+	"personas": {
+		"personales": {
+			"nombre": {
+				"type": "string"
+			},
+			"edad": {
+				"type": "number",
+				"unit": "years",
+				"maxNoise": 20
+			}
+		},
+		"localizacion": {
+			"lat": {
+				"type": "number",
+				"unit": "degree",
+				"maxNoise": 100
+			},
+			"lon": {
+				"type": "number",
+				"unit": "degree",
+				"maxNoise": 100
+			}
+		},
+		"trabajo": {
+			"profesion": {
+				"type": "string"
+			},
+			"sueldo": {
+				"type": "number",
+				"unit": "euros",
+				"maxNoise": 30000
+			}
+		},
+		"salud": {
+			"pulso": {
+				"type": "number",
+				"units": "bpm",
+				"maxNoise": 10
+			},
+			"temperatura": {
+				"type": "number",
+				"unit": "degree celsius",
+				"maxNoise": 5
+			},
+			"enfermedad": {
+				"type": "string"
+			}
+		}
+	}
+}

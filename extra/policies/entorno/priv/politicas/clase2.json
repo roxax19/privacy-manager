@@ -1,0 +1,40 @@
+{
+	"max": 3,
+	"reglas": [
+		{
+			"action": [
+				"GET"
+			],
+			"data": [
+				"personal"
+			],
+			"privacyMethod": [
+				"exact"
+			]
+		},
+		{
+			"action": [
+				"GET"
+			],
+			"data": [
+				"profesion"				
+			],
+			"privacyMethod": [
+				"maxNoise"
+			]
+		},
+		{
+			"action": [
+				"GET"
+			],
+			"data": [
+				"salud"
+			],
+			"privacyMethod": [
+				"gen"
+			]
+		}
+	]
+}
+
+

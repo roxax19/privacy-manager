@@ -1,0 +1,64 @@
+{
+  "id": 1,
+  "max": 3,
+  "rules": [
+    {
+      "action_type": "GET",
+      "resource": "select * from pulse_data",
+      "privacyMethod": "Exact",
+      "conditions": [
+        {
+          "requester": {
+            "role": "Fit provider"
+          },
+          "context": {
+            "location": {
+              "geometry": {
+                "coordinates": [
+                  -4.4953018,
+                  36.7156645
+                ],
+                "type": "Point"
+              },
+              "properties": {
+                "Location": {
+                  "Address": "Avda. Francisco Trujillo Villanueva, 1, 29071 Malaga, Spain",
+                  "Business Name": "Universidad de Malaga",
+                  "Country Code": "ES",
+                  "Geo Coordinates": {
+                    "Latitude": "36.7156645",
+                    "Longitude": "-4.4953018"
+                  }
+                }
+              },
+              "type": "Feature"
+            }
+          },
+          "data_location": ["edge","cloud"]
+        }
+      ]
+    },
+    {
+      "action_type": "PUSH",
+      "conditions": [
+        {
+          "context": {
+            "timeofday": ">0:00 and <8:00",
+            "granularity": "size>1M",
+            "data_location": ["edge","cloud"]
+          }
+        }
+      ]
+    },
+    {
+      "action_type": "DELETE",
+      "conditions": [
+        {
+          "requester": {
+            "role": "owner"
+          }
+        }
+      ]
+    }
+  ]
+}

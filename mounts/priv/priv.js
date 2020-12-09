@@ -225,6 +225,7 @@ async function tipoAccesoGET(clase, accion, tipoDato) {
 	 * Puede acceder al dato con esa accion
 	 */
 
+
 	var i = 0;
 	while (i < jsonPolitica.max && result == '') {
 		//Comprobamos las acciones

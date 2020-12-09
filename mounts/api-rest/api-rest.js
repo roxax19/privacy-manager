@@ -39,6 +39,17 @@ var con = mysql.createConnection({
 	database : 'test'
 });
 
+/*-- Direcciones de modulos -- */
+//var auth = 'https://10.152.183.201:8081';
+var auth = 'https://auth.default.svc.cluster.local:8081'
+
+//var priv = 'https://10.152.183.202:8082';
+//var priv = 'https://priv.default.svc.cluster.local:8082';
+//Para desarrollar priv, utilizamos
+var priv = 'https://192.168.0.193:8082'
+
+
+
 /*-- Creacion del servidor -- */
 const puerto = 8080;
 //app.listen(puerto, () => console.log('Servidor http escuchando en puerto ' + puerto));
@@ -140,7 +151,7 @@ async function comprobarToken(token) {
 
 	var respuesta = '';
 	//var auth = 'https://10.152.183.201:8081';
-	var auth = 'https://auth.default.svc.cluster.local:8081'
+	//var auth = 'https://auth.default.svc.cluster.local:8081'
 
 	await axios
 		.post(
@@ -169,7 +180,7 @@ async function envioGETPriv(clase, tipoDato) {
 
 	var respuesta = '';
 	//var priv = 'https://10.152.183.202:8082';
-	var priv = 'https://priv.default.svc.cluster.local:8082';
+	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
 		clase    : clase,
 		tipoDato : tipoDato
@@ -198,7 +209,7 @@ async function envioPOSTPriv(clase, datos) {
 
 	var respuesta = '';
 	//var priv = 'https://10.152.183.202:8082';
-	var priv = 'https://priv.default.svc.cluster.local:8082';
+	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
 		clase : clase,
 		datos : datos
@@ -226,7 +237,7 @@ async function envioDELETEPriv(clase, id) {
 
 	var respuesta = '';
 	//var priv = 'https://10.152.183.202:8082';
-	var priv = 'https://priv.default.svc.cluster.local:8082';
+	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var data = {
 		clase : clase,
 		id    : id
