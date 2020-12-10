@@ -12,10 +12,6 @@
       "type": "number",
       "description": "Policy id"
     },
-    "max": {
-      "type": "number",
-      "description": "Max number of rules"
-    },
     "rules": {
       "type": "array",
       "description": "List of policy rules",

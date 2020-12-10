@@ -13,11 +13,27 @@ Mejora de las políticas de privacidad
 ---- Doing:
 
 Mejora de las políticas de privacidad
-	Crear entorno de pruebas fuera del cluster		
-		
+	Crear entorno de pruebas fuera del cluster
+		Reprogramar el nuevo esquema
+			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
+			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar INTERSECT en mysql
+				Empezamos utilizando solo la query definida en la regla
+				Luego cambiamos para aceptar que el usuario meta querys desde fuera, y probamos a hacer la interseccion simple
+					Habria que comprobar las columnas que se permiten sacar al usuario y las que el esta pidiendo obtener
+					Habria que comprobar que SQL hace bien la comprobación de filas con los WHERE, maybe solo para el segundo paso?
+				Luego pasamos a comprobar si hay WHERE en la query del usuario y en la definida en las reglas y en función de eso utilizar una implementación u otra		
+		MIRAR COMO FUNCIONA EL ALGORITMO GEN Y VER SI PUDEO CAMBIAR PARA QUE SE HAGA SOBRE LA QUERY QUE YO SOLICITO.
+		ESTO CUANDO YA FUNCIONE TODO
 
 
 -----DONE:
+
+	Crear entorno de pruebas fuera del cluster
+		Reprogramar el nuevo esquema
+			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
+			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar INTERSECT en mysql
+				Empezamos utilizando solo la query definida en la regla	
+
 Añadir conexión con distintas plataformas de IoT.
 	Implementar la APi para Fiware --> nodeRed
 		Añadir NodeRED al proyecto

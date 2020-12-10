@@ -37,8 +37,8 @@ const agentSSL = new https.Agent({
 
 /*-- Conexion con la base de datos (hecha con "factory function" warper para usar await)-- */
 var dbConfig = {
-	//host     : '10.152.183.137', //mysql master
-	host     : 'mysql-master.default.svc.cluster.local',
+	host     : '10.152.183.137', //mysql master
+	//host     : 'mysql-master.default.svc.cluster.local',
 	user     : 'root',
 	password : '',
 	database : 'test'
@@ -71,11 +71,11 @@ app.get('/', function(req, res) {
 	console.log('Priv: ' + JSON.stringify(req.query));
 
 	tipoAccesoGET(req.query.clase, 'GET', req.query.tipoDato).then((acceso) => {
-		if (acceso == 'none') {
+		if (acceso[0] == 'none') {
 			res.send('No tienes acceso al dato.');
-		} else if (acceso == 'exact') {
+		} else if (acceso[0] == 'exact') {
 			//Hacemos query a la base directamente
-			query(req.query.tipoDato)
+			query(req.query.tipoDato,acceso[1])
 				.then((resultado) => {
 					res.send(resultado);
 				})
@@ -83,9 +83,9 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
-		} else if (acceso == 'gen') {
-			//var gen = 'https://10.152.183.203:8083';
-			var gen = 'https://gen.default.svc.cluster.local:8083';
+		} else if (acceso[0] == 'gen') {
+			var gen = 'https://10.152.183.203:8083';
+			//var gen = 'https://gen.default.svc.cluster.local:8083';
 			
 			//Hacemos llamada al modulo de generalizar
 			axios
@@ -97,9 +97,9 @@ app.get('/', function(req, res) {
 				.catch(function(error) {
 					console.log(error);
 				});
-		} else if (acceso == 'minNoise') {
+		} else if (acceso[0] == 'minNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato)
+			query(req.query.tipoDato,acceso[1])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 0.1);
 				})
@@ -110,9 +110,9 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
-		} else if (acceso == 'medNoise') {
+		} else if (acceso[0] == 'medNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato)
+			query(req.query.tipoDato,acceso[1])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 0.5);
 				})
@@ -123,9 +123,9 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
-		} else if (acceso == 'maxNoise') {
+		} else if (acceso[0] == 'maxNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato)
+			query(req.query.tipoDato,acceso[1])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 1);
 				})
@@ -194,16 +194,17 @@ app.delete('/', function(req, res) {
 });
 
 /**
- * Mira el tipo de acceso que tenemos
+ * Mira el tipo de acceso que tenemos.
+ * Para ello, lee el archivo json con el nombre de la clase que le han mandado
  * @param {string} clase 
  * @param {string} accion 
  * @param {string} tipoDato 
  * 
- * Devuelve:
- * "none" si no tenemos acceso
- * "exact" si devolvemos el dato sin ninguna privacidad
- * "gen" si devolvemos una generalizacion del dato (usado para strings)
- * "noise" si devolvemos el dato con algun tipo de ruido
+ * Devuelve un array:
+ * "[none, query]" si no tenemos acceso
+ * "[exact, query]" si devolvemos el dato sin ninguna privacidad
+ * "[gen, query]" si devolvemos una generalizacion del dato (usado para strings)
+ * "[noise, query]" si devolvemos el dato con algun tipo de ruido
  */
 
 async function tipoAccesoGET(clase, accion, tipoDato) {
@@ -215,48 +216,28 @@ async function tipoAccesoGET(clase, accion, tipoDato) {
 
 	console.log('fun tipoAcceso politica: ' + JSON.stringify(jsonPolitica));
 
-	var boolAccion = 0;
-	var boolTipoDato = 0;
-
-	var result = '';
-
-	/**Condiciones para acceso:
-	 * Puede hacer la accion
-	 * Puede acceder al dato con esa accion
-	 */
-
+	var result = ["",""];
 
 	var i = 0;
-	while (i < jsonPolitica.max && result == '') {
-		//Comprobamos las acciones
-		for (const accionRegla of jsonPolitica.reglas[i].action) {
-			console.log('fun tipoAcceso accionRegla: ' + accionRegla);
-			if (accionRegla == accion) {
-				//Se permite la accion
-				boolAccion = 1;
-			}
-		}
+	while (i < jsonPolitica.rules.length && result[0] == '') {
+		//Comprobamos que tenemos permitido este tipo de accion
+		if(jsonPolitica.rules[i].action_type == accion){
+			
+			//Leemos el tipo de acceso que tenemos
+			result[0]=jsonPolitica.rules[i].privacy_method
 
-		for (const datoRegla of jsonPolitica.reglas[i].data) {
-			console.log('fun tipoAcceso datoRegla: ' + datoRegla);
-			if (datoRegla == tipoDato || datoRegla == 'all') {
-				//Se permite la accion
-				boolTipoDato = 1;
-			}
-		}
-
-		if (boolAccion && boolTipoDato) {
-			result = jsonPolitica.reglas[i].privacyMethod[0];
-		} else {
-			boolAction = 0;
-			boolTipoDato = 0;
+			//Leemos los datos a los que tenemos acceso (la query)
+			result[1]=jsonPolitica.rules[i].resource
+		}else{
 			i++;
 		}
 	}
 
-	if (result == '') {
-		result = 'none';
+	//Si no habia ninguna regla que definiera este tipo de acceso, no tenemos acceso
+	if (result[0] == '') {
+		result[0] = 'none';
 	}
+
 	console.log('fun tipoAcceso devuelve: ' + result);
 	return result;
 }
@@ -287,35 +268,23 @@ async function tipoAccesoAccion(clase, accion) {
 	return 1;
 }
 
-async function query(tipoDato) {
-	//Cogemos una fila de la base de datos
+async function query(queryUsuario, queryReglas) {
 
-	var dato = traduccionTipoDato(tipoDato);
+	//Tenemos que implementar el operador INTERSECT para que devuelva una interseccion de la query del usuario y de la query de las reglas
+	//despues habrá que hacerla distinta en funcion de si ha filtros WHERE o no
+
+	var queryFinal = ""
+
+	queryFinal = queryReglas
 
 	try {
-		var resultado = await con.query('SELECT ' + dato + ' FROM `personas`');
+		var resultado = await con.query(queryFinal);
 	} catch (err) {
 		console.log(err);
 	}
 
 	console.log('fun query result: ' + resultado);
 	return resultado;
-}
-
-function traduccionTipoDato(tipoDato) {
-	if (tipoDato == 'all') {
-		return '*';
-	} else if (tipoDato == 'personales') {
-		return 'nombre, edad';
-	} else if (tipoDato == 'localizacion') {
-		return 'lat, lon';
-	} else if (tipoDato == 'profesion') {
-		return 'profesion, sueldo';
-	} else if (tipoDato == 'salud') {
-		return 'pulso, temperatura, enfermedad';
-	} else {
-		return 'error';
-	}
 }
 
 async function introduzcoDatos(datos) {

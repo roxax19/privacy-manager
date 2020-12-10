@@ -1,26 +1,16 @@
 {
-	"max": 3,
-	"reglas": [
+	"id": 0,
+	"rules": [
 		{
-			"action": [
-				"GET"
-			],
-			"data": [
-				"all"
-			],
-			"privacyMethod": [
-				"exact"
-			]
+			"action_type":"GET",			
+			"privacy_method":"exact",
+			"resource": "SELECT * FROM personas"
 		},
 		{
-			"action": [
-				"POST"
-			]
+			"action_type":"POST"
 		},
 		{
-			"action": [
-				"DELETE"
-			]
+			"action_type":"DELETE"
 		}
 	]
 }
