@@ -75,7 +75,7 @@ app.get('/', function(req, res) {
 			res.send('No tienes acceso al dato.');
 		} else if (acceso[0] == 'exact') {
 			//Hacemos query a la base directamente
-			query(req.query.tipoDato,acceso[1])
+			query(req.query.tipoDato,acceso[1], acceso[2])
 				.then((resultado) => {
 					res.send(resultado);
 				})
@@ -99,7 +99,7 @@ app.get('/', function(req, res) {
 				});
 		} else if (acceso[0] == 'minNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato,acceso[1])
+			query(req.query.tipoDato,acceso[1], acceso[2])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 0.1);
 				})
@@ -112,7 +112,7 @@ app.get('/', function(req, res) {
 				});
 		} else if (acceso[0] == 'medNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato,acceso[1])
+			query(req.query.tipoDato,acceso[1], acceso[2])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 0.5);
 				})
@@ -125,7 +125,7 @@ app.get('/', function(req, res) {
 				});
 		} else if (acceso[0] == 'maxNoise') {
 			//Hacemos llamada a la función de ruido
-			query(req.query.tipoDato,acceso[1])
+			query(req.query.tipoDato,acceso[1], acceso[2])
 				.then((resultado) => {
 					return ruido(resultado, 'personas', 1);
 				})
@@ -201,10 +201,10 @@ app.delete('/', function(req, res) {
  * @param {string} tipoDato 
  * 
  * Devuelve un array:
- * "[none, query]" si no tenemos acceso
- * "[exact, query]" si devolvemos el dato sin ninguna privacidad
- * "[gen, query]" si devolvemos una generalizacion del dato (usado para strings)
- * "[noise, query]" si devolvemos el dato con algun tipo de ruido
+ * "[none, query, filter]" si no tenemos acceso
+ * "[exact, query, filter]" si devolvemos el dato sin ninguna privacidad
+ * "[gen, query, filter]" si devolvemos una generalizacion del dato (usado para strings)
+ * "[noise, query, filter]" si devolvemos el dato con algun tipo de ruido
  */
 
 async function tipoAccesoGET(clase, accion, tipoDato) {
@@ -228,6 +228,9 @@ async function tipoAccesoGET(clase, accion, tipoDato) {
 
 			//Leemos los datos a los que tenemos acceso (la query)
 			result[1]=jsonPolitica.rules[i].resource
+
+			//Leemos el filtro where de las reglas
+			result[2]=jsonPolitica.rules[i].filter
 		}else{
 			i++;
 		}
@@ -268,14 +271,120 @@ async function tipoAccesoAccion(clase, accion) {
 	return 1;
 }
 
-async function query(queryUsuario, queryReglas) {
+/**
+ * Realiza una comparacion entre la query del usuario y la que hay en las reglas.
+ * Después, manda la query a la base de datos
+ * 
+ * @param {String} queryUsuario --> estructura SELECT sth WHERE
+ * @param {String} queryReglas --> estructura SELECT sth FROM sth 
+ * @param {String} whereReglas --> estructura WHERE sth
+ * 
+ * Devuelve los datos recogidos de la base de datos
+ */
+
+
+async function query(queryUsuario, queryReglas, whereReglas) {
 
 	//Tenemos que implementar el operador INTERSECT para que devuelva una interseccion de la query del usuario y de la query de las reglas
 	//despues habrá que hacerla distinta en funcion de si ha filtros WHERE o no
+	
+	/**
+	 * Vamos a tener varios casos
+	 * Caso 1: En la regla tenemos un *. En este caso, cogemos el where de la regla y lo añadimos al de la query del usuario
+	 * Caso 2: En el usuario tenemos un *. En este caso cogemos el where del usuario, y lo añadimos al de la regla
+	 * Caso 3: No hay * en ninguno. Comparamos las columnas a las que nos dejan acceder, y dejamos en la query final solo las que sean comunes
+	 * 
+	 */
 
 	var queryFinal = ""
+	
+	//Hay que comprobar que columnas nos permiten seleccionar en las reglas
+	queryReglasArray = queryReglas.split(" ")
+	queryUsuarioArray = queryUsuario.split(" ")
+	
+	//Analizamos la primera columna, y hacemos cosas distintas en función de si tenemos permiso general o no
+	if(queryReglasArray[1] == "*"){
+		//CASO 1
 
-	queryFinal = queryReglas
+		if(queryUsuarioArray.includes("WHERE")){
+			//Si tiene where la consulta del usuario, tenemos que unirlos mediante AND
+			queryFinal = 
+				queryUsuario.substring(0,8) + // SELECT *
+				' FROM personas' +
+				queryUsuario.substring(9,queryUsuario.length) + //WHERE sth
+				'AND ' + 
+				whereReglas.replace("WHERE ","")
+		}else{
+			//Si no tiene where
+			queryFinal = 
+				queryUsuario.substring(0,8) + // SELECT *
+				' FROM personas' +
+				whereReglas
+		}
+
+	}else if (queryUsuarioArray[1] == "*"){
+		//CASO 2
+
+		if(whereReglas === undefined){
+			//Si tiene where la regla, tenemos que unirlos mediante AND
+			queryFinal = queryReglas + whereReglas +'AND ' + queryUsuario.replace("SELECT * WHERE ","")
+		}else{
+			//Si no tiene where, unimos con where
+			queryFinal = queryReglas + queryUsuario.replace("SELECT * ","")
+		}
+
+	}else{
+		//CASO 3
+
+		//Hay que comprarar las columnas que se permiten acceder en los dos lados
+		//Primero tenemos que quedarnos solo con las palabras entre SELECT y WHERE
+		//Despues tenemos que procesarlas para que no tengan comas
+		//Finalmente las comparamos, y dejamos solo las comunes
+
+		//HABRIA QUE COMPROBAR SI TIENEN WHERE EL USUARIO Y LA QUERY, ESO SE TE HA OLVIDAO CAMPEON
+		
+		var usuarioHasWhere = queryUsuarioArray.includes("WHERE")
+
+		if(usuarioHasWhere){
+			var indexFinUsuario = queryUsuarioArray.findIndex("WHERE")			
+		}else{
+			var indexFinUsuario = queryUsuarioArray.length	
+		}
+
+		//Empezamos el 1 para saltar el SELECT, y terminamos en el WHERE
+
+		for(i=1;i<indexFinUsuario;i++){
+			//quitamos la "," a las columnas
+			queryUsuarioArray[i] = queryUsuarioArray[i].replace(",","")
+		}
+		for(i=1;i<queryReglas.length;i++){
+			//quitamos la "," a las columnas
+			queryUsuarioArray[i] = queryUsuarioArray[i].replace(",","")
+		}
+
+		//Ahora almacenamos las que son iguales 
+		var columnas = ""
+		for(i=1;i<queryReglasArray.length;i++){
+
+			for(j=1;j<indexWhere;j++){
+
+				if(queryReglasArray[i]==queryUsuarioArray[j]){
+					columnas = columnas + queryReglasArray[i] + ", "
+				}
+			}
+		}
+
+		//Y ahora montamos la query.
+		// Tenemos que considerar los 4 casos, y luego ya vemos si los podemos reducir o no
+
+
+
+
+		
+
+	}
+	
+	console.log('fun query: queryFinal: '+queryFinal)
 
 	try {
 		var resultado = await con.query(queryFinal);
