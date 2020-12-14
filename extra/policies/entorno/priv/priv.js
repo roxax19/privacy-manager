@@ -297,44 +297,92 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 	 */
 
 	var queryFinal = ""
-	
+
 	//Hay que comprobar que columnas nos permiten seleccionar en las reglas
 	queryReglasArray = queryReglas.split(" ")
 	queryUsuarioArray = queryUsuario.split(" ")
+
+	//TENEMOS QUE CONSIDERAR LOS 4 CASOS DENTRO DE TODOS LOS APARTADOS
+	//CUANDO ESTE TODO HECHO, HABRIA QUE VER COMO EVITAR SQL INJECT (buscar en internet)
+
+	var usuarioHasWhere = queryUsuarioArray.includes("WHERE")
 	
 	//Analizamos la primera columna, y hacemos cosas distintas en función de si tenemos permiso general o no
 	if(queryReglasArray[1] == "*"){
-		//CASO 1
 
-		if(queryUsuarioArray.includes("WHERE")){
-			//Si tiene where la consulta del usuario, tenemos que unirlos mediante AND
+		//CASO 1 - Reglas tienen *
+		console.log('fun query: CASO 1 ')
+
+		if(!usuarioHasWhere && whereReglas === undefined){
+			//CASO 1.1 - no where
+			console.log('fun query: CASO 1.1')
+
+			queryFinal = queryUsuario + ' FROM personas '
+
+		}else if(usuarioHasWhere && whereReglas === undefined){
+			//CASO 1.2 - where en usuario
+			console.log('fun query: CASO 1.2')
+
 			queryFinal = 
-				queryUsuario.substring(0,8) + // SELECT *
-				' FROM personas' +
-				queryUsuario.substring(9,queryUsuario.length) + //WHERE sth
-				'AND ' + 
-				whereReglas.replace("WHERE ","")
+				queryUsuario.slice(0,queryUsuario.indexOf('WHERE')) +
+				' FROM personas ' +
+				queryUsuario.slice(queryUsuario.indexOf('WHERE'),queryUsuario.length) //Devuelve la parte con el WHERE			
+
+		}else if(!usuarioHasWhere && !(whereReglas === undefined)){
+			//CASO 1.3 - where en reglas
+			console.log('fun query: CASO 1.3')
+
+			queryFinal = queryUsuario + ' FROM personas ' + whereReglas
+
 		}else{
-			//Si no tiene where
+			//CASO 1.4 - where en ambos
+			console.log('fun query: CASO 1.4')
 			queryFinal = 
-				queryUsuario.substring(0,8) + // SELECT *
-				' FROM personas' +
-				whereReglas
+				queryUsuario.slice(0,queryUsuario.indexOf('WHERE')) +
+				'FROM personas' + 
+				whereReglas; +
+				'AND ' +
+				queryUsuario.slice(queryUsuario.indexOf('WHERE')+6,queryUsuario.length) //Devuelve la condicion sin el WHERE
+
 		}
 
-	}else if (queryUsuarioArray[1] == "*"){
-		//CASO 2
 
-		if(whereReglas === undefined){
-			//Si tiene where la regla, tenemos que unirlos mediante AND
-			queryFinal = queryReglas + whereReglas +'AND ' + queryUsuario.replace("SELECT * WHERE ","")
+	}else if (queryUsuarioArray[1] == "*"){
+		//CASO 2 - el susuario solicita todo, pero en reglas no permite todo
+		console.log('fun query: CASO 2 ')
+
+		if(!usuarioHasWhere && whereReglas === undefined){
+			//CASO 2.1 - no where
+			console.log('fun query: CASO 2.1')
+
+			queryFinal = queryReglas
+
+		}else if(usuarioHasWhere && whereReglas === undefined){
+			//CASO 2.2 - where en usuario
+			console.log('fun query: CASO 2.2')
+
+			queryFinal =  queryReglas + " " + queryUsuario.slice(queryUsuario.indexOf('WHERE'),queryUsuario.length) //Devuelve la parte con el WHERE		
+
+		}else if(!usuarioHasWhere && !(whereReglas === undefined)){
+			//CASO 2.3 - where en reglas
+			console.log('fun query: CASO 2.3')
+
+			queryFinal = queryReglas + " " +whereReglas
+
 		}else{
-			//Si no tiene where, unimos con where
-			queryFinal = queryReglas + queryUsuario.replace("SELECT * ","")
+			//CASO 2.4 - where en ambos
+			console.log('fun query: CASO 2.4')
+			queryFinal = 
+				queryReglas + " "
+				whereReglas +
+				'AND ' +
+				queryUsuario.slice(queryUsuario.indexOf('WHERE')+6,queryUsuario.length) //Devuelve la condicion sin el WHERE
+
 		}
 
 	}else{
 		//CASO 3
+		console.log('fun query: CASO 3 ')
 
 		//Hay que comprarar las columnas que se permiten acceder en los dos lados
 		//Primero tenemos que quedarnos solo con las palabras entre SELECT y WHERE
@@ -342,45 +390,94 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 		//Finalmente las comparamos, y dejamos solo las comunes
 
 		//HABRIA QUE COMPROBAR SI TIENEN WHERE EL USUARIO Y LA QUERY, ESO SE TE HA OLVIDAO CAMPEON
-		
-		var usuarioHasWhere = queryUsuarioArray.includes("WHERE")
 
 		if(usuarioHasWhere){
-			var indexFinUsuario = queryUsuarioArray.findIndex("WHERE")			
+			const isWhere = (element) => element == "WHERE";
+			var indexFinUsuario = queryUsuarioArray.findIndex(isWhere)			
 		}else{
 			var indexFinUsuario = queryUsuarioArray.length	
 		}
 
 		//Empezamos el 1 para saltar el SELECT, y terminamos en el WHERE
 
+		console.log("indexFinUsuario: " + indexFinUsuario)
+
 		for(i=1;i<indexFinUsuario;i++){
 			//quitamos la "," a las columnas
+			//console.log("usuario: "+queryUsuarioArray[i]+".")
 			queryUsuarioArray[i] = queryUsuarioArray[i].replace(",","")
+			//console.log("usuario despues: "+queryUsuarioArray[i]+".")
 		}
-		for(i=1;i<queryReglas.length;i++){
+		for(i=1;i<queryReglasArray.length-2;i++){
 			//quitamos la "," a las columnas
-			queryUsuarioArray[i] = queryUsuarioArray[i].replace(",","")
+			//console.log("reglas: "+queryReglasArray[i]+".")
+			queryReglasArray[i] = queryReglasArray[i].replace(",","")
+			//console.log("reglas despues: "+queryReglasArray[i]+".")
 		}
 
 		//Ahora almacenamos las que son iguales 
 		var columnas = ""
 		for(i=1;i<queryReglasArray.length;i++){
 
-			for(j=1;j<indexWhere;j++){
+			for(j=1;j<indexFinUsuario;j++){
+
+				console.log ("usuario posicion "+j +" :"+queryUsuarioArray[j])
+				console.log ("regla posicion "+i +" :"+queryReglasArray[i])
 
 				if(queryReglasArray[i]==queryUsuarioArray[j]){
 					columnas = columnas + queryReglasArray[i] + ", "
+					console.log ("Coinciden")
 				}
 			}
 		}
+		console.log("columnas: "+columnas)
+		columnas = columnas.slice(0,columnas.length-2)
+		console.log("columnas despues: "+columnas)
+
 
 		//Y ahora montamos la query.
 		// Tenemos que considerar los 4 casos, y luego ya vemos si los podemos reducir o no
 
+		//Tenemos tambien que ver si ha habido columnas en comun o no
 
-
+		if(columnas == " "){
+			return "No tienes permiso para acceder a esos datos"
+		}
 
 		
+		if(!usuarioHasWhere && whereReglas === undefined){
+			//CASO 3.1 - No where ni usuario ni reglas
+			console.log('fun query: CASO 3.1 ')
+			//Montamos la query de forma normal
+			queryFinal = 'SELECT ' + columnas + ' FROM personas ';
+
+		}else if(usuarioHasWhere && whereReglas === undefined){
+			//CASO 3.2 - Usuario tiene WHERE, reglas no
+			console.log('fun query: CASO 3.2')
+
+			queryFinal = 
+				'SELECT ' + 
+				columnas + 
+				' FROM personas ' + 
+				queryUsuario.slice(queryUsuario.indexOf('WHERE'),queryUsuario.length) //Devuelve la parte con el WHERE
+
+		}else if(!usuarioHasWhere && !(whereReglas === undefined)){
+			//CASO 3.3 - Usuairo no tiene WHERE, y las reglas si
+			console.log('fun query: CASO 3.3 ')
+
+			queryFinal = 'SELECT ' + columnas + ' FROM personas ' + whereReglas;
+		}else{
+			// CASO 3.4 - Usuario y reglas tienen where
+			console.log('fun query: CASO 3.4 ')
+
+			queryFinal = 
+				'SELECT ' + 
+				columnas + 
+				' FROM personas ' + 
+				whereReglas; +
+				'AND ' +
+				queryUsuario.slice(queryUsuario.indexOf('WHERE')+6,queryUsuario.length) //Devuelve la condicion sin el WHERE
+		}		
 
 	}
 	
@@ -394,6 +491,7 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 
 	console.log('fun query result: ' + resultado);
 	return resultado;
+
 }
 
 async function introduzcoDatos(datos) {
