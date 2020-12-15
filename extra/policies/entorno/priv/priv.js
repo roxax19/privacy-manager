@@ -1,25 +1,28 @@
-/*-- Librerias -- */
+/* ===================================== Librerias ===================================== */
 
-var https = require('https');
-var fs = require('fs');
-var helmet = require('helmet'); //Para HSTS, necesario anadir
-var mysql = require('mysql');
-var jwt = require('jsonwebtoken');
-var express = require('express');
-var body_parser = require('body-parser'); //necesario anadir
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const helmet = require('helmet'); //Para HSTS, necesario anadir
+const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
+const express = require('express');
+const body_parser = require('body-parser'); //necesario anadir
 const util = require('util'); // Para "promisify" las querys
-var Promise = require('bluebird'); //Para numeros aleatorios
-var randomNumber = require('random-number-csprng'); //Para numeros aleatorios
+const Promise = require('bluebird'); //Para numeros aleatorios
+const randomNumber = require('random-number-csprng'); //Para numeros aleatorios
 const axios = require('axios'); // probamos con axios para generar http
+const QueryString = require('qs');
 
-/*-- Configuramos Express -- */
+
+/* ===================================== Configuramos Express ===================================== */
 var app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(helmet());
 app.disable('etag'); //Para desactivar los caches (evitando respuesta 304 Not Modified)
 
-/*-- Parametros SSL --*/
+/* ===================================== Parametros SSL ===================================== */
 const options = {
 	key                : fs.readFileSync('ssl/key.pem'),
 	cert               : fs.readFileSync('ssl/priv.pem'),
@@ -29,13 +32,15 @@ const options = {
 	//rejectUnauthorized : true
 };
 
-/*-- Parametros SSL para parte cliente--*/
+
+/* ================================= Parametros SSL para parte cliente ================================= */
 const agentSSL = new https.Agent({
 	key  : fs.readFileSync('ssl/key.pem'),
 	cert : fs.readFileSync('ssl/priv.pem')
 });
 
-/*-- Conexion con la base de datos (hecha con "factory function" warper para usar await)-- */
+
+/* ================== Conexion con la base de datos (hecha con "factory function" warper para usar await) ================== */
 var dbConfig = {
 	host     : '10.152.183.137', //mysql master
 	//host     : 'mysql-master.default.svc.cluster.local',
@@ -58,21 +63,81 @@ function makeDb(config) {
 
 var con = makeDb(dbConfig);
 
-/*-- Creacion del servidor -- */
+
+/* ===================================== Creacion del servidor ===================================== */
 const puerto = 8082;
 //app.listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto));
 https.createServer(options, app).listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto));
 
-/*-- Respuesta del servidor a GET -- */
+
+/* ===================================== Lectura reglas privacidad ===================================== */
+
+/**
+ * Hacemos una lectura inicial de todas las politicas acutales y creamos una view de sql para cada regla get de cada usuario.
+ * Luego en cada get que recibimos comprobamos si la query y el filter de las políticas han cambiado. Si han cambiado,
+ * borramos la view que existe para ese usuario, y creamos una nuvea. Eso debería ser una función a parte.
+ */
+
+const privacyRulesPath = path.join(__dirname, 'politicas');
+
+var politicas = {}
+
+//passsing directoryPath and callback function
+fs.readdir(privacyRulesPath, async function (err, files) {
+    //handling error
+    if (err) {
+        return console.log('Unable to scan directory: ' + err);
+    } 
+    //listing all files using forEach
+    files.forEach(async function (file) {
+		// File es el nombre del archivo. leemos todos los "*.json"
+		
+		if(/\.json$/.test(file)){
+
+			var fileNoExtension = file.slice(0,file.length-5)
+
+			//Leemos el archivo y lo guardamos en el objeto politicas
+			var auxPol = fs.readFileSync(path.join(privacyRulesPath,file))
+			politicas[fileNoExtension] = JSON.parse(auxPol);
+
+			//Una vez leidas las politicas, creamos las views SQL
+			//Hay que crear una view para cada regla get dentro de cada politica
+
+			for( var i=0; i<politicas[fileNoExtension].rules.length;i++){
+				if(politicas[fileNoExtension].rules[i].action_type== "GET"){
+
+					var nombreVista = await createViewFromRule(politicas[fileNoExtension].rules[i], fileNoExtension, i)
+
+					//Almacenamos el nombre de las vistas para despues poder hacerles una query
+					politicas[fileNoExtension].rules[i].nombreVista = nombreVista
+
+					console.log(politicas[fileNoExtension].rules[i])
+
+					
+				}
+			}
+		}
+	});	
+});
+
+/* ===================================== GET ===================================== */
 
 app.get('/', function(req, res) {
-	//Tengo que leer las normas de privacidad
 
-	console.log('Priv: ' + JSON.stringify(req.query));
+	//console.log('Priv: ' + JSON.stringify(req.query));
+
+	//Primero realizamos las querys a las diferentes vistas que tenga el usuario disponibles
+
+	//HAY QUE CAMBIAR EL PARÁMETRO TIPO DATO A QUERY STRING
+
+	querysAVistas(req.query.clase, req.query.tipoDato)
+
 
 	tipoAccesoGET(req.query.clase, 'GET', req.query.tipoDato).then((acceso) => {
+
 		if (acceso[0] == 'none') {
 			res.send('No tienes acceso al dato.');
+
 		} else if (acceso[0] == 'exact') {
 			//Hacemos query a la base directamente
 			query(req.query.tipoDato,acceso[1], acceso[2])
@@ -83,6 +148,7 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
+
 		} else if (acceso[0] == 'gen') {
 			var gen = 'https://10.152.183.203:8083';
 			//var gen = 'https://gen.default.svc.cluster.local:8083';
@@ -97,6 +163,7 @@ app.get('/', function(req, res) {
 				.catch(function(error) {
 					console.log(error);
 				});
+
 		} else if (acceso[0] == 'minNoise') {
 			//Hacemos llamada a la función de ruido
 			query(req.query.tipoDato,acceso[1], acceso[2])
@@ -110,6 +177,7 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
+
 		} else if (acceso[0] == 'medNoise') {
 			//Hacemos llamada a la función de ruido
 			query(req.query.tipoDato,acceso[1], acceso[2])
@@ -123,6 +191,7 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
+
 		} else if (acceso[0] == 'maxNoise') {
 			//Hacemos llamada a la función de ruido
 			query(req.query.tipoDato,acceso[1], acceso[2])
@@ -136,20 +205,18 @@ app.get('/', function(req, res) {
 					console.log(err);
 					res.send(err);
 				});
+
 		} else {
 			res.send('Error en priv, tipoAcceso');
 		}
 	});
 });
 
-/*-- Respuesta del servidor a POST -- */
+/* ===================================== POST ===================================== */
 
 app.post('/', function(req, res) {
 	console.log('req.body.clase: ' + req.body.clase);
 	console.log('req.body.datos: ' + req.body.datos);
-
-	//HACER COMPROBACION DE LA LONGITUD DE LOS DATOS EN API-REST
-	//LA COMPROBACION DEL FORMULARIO NO ES EL OBJETIVO DE ESTE TFG
 
 	//Vemos si tenemos permiso para introducir datos
 	tipoAccesoAccion(req.body.clase, 'POST').then((resultado) => {
@@ -169,7 +236,7 @@ app.post('/', function(req, res) {
 	});
 });
 
-// /*-- Respuesta del servidor a DELETE -- */
+/* ===================================== DELETE ===================================== */
 
 app.delete('/', function(req, res) {
 	console.log('req.body.clase: ' + req.body.clase);
@@ -193,6 +260,9 @@ app.delete('/', function(req, res) {
 	});
 });
 
+/* ===================================== Funciones ===================================== */
+
+
 /**
  * Mira el tipo de acceso que tenemos.
  * Para ello, lee el archivo json con el nombre de la clase que le han mandado
@@ -208,13 +278,17 @@ app.delete('/', function(req, res) {
  */
 
 async function tipoAccesoGET(clase, accion, tipoDato) {
-	console.log('fun tipoAcceso clase: ' + clase);
-	console.log('fun tipoAcceso tipoDato: ' + tipoDato);
+
+	//Primero tenemos que comprobar el metodo de privacidad que podemos usar
+	//Que hacemos si nos pide columnas a las que tiene diferente tipo de acceso?
+
+	//console.log('fun tipoAcceso clase: ' + clase);
+	//console.log('fun tipoAcceso tipoDato: ' + tipoDato);
 
 	var politica = fs.readFileSync('politicas/' + clase + '.json');
 	var jsonPolitica = JSON.parse(politica);
 
-	console.log('fun tipoAcceso politica: ' + JSON.stringify(jsonPolitica));
+	//console.log('fun tipoAcceso politica: ' + JSON.stringify(jsonPolitica));
 
 	var result = ["",""];
 
@@ -241,24 +315,24 @@ async function tipoAccesoGET(clase, accion, tipoDato) {
 		result[0] = 'none';
 	}
 
-	console.log('fun tipoAcceso devuelve: ' + result);
+	//console.log('fun tipoAcceso devuelve: ' + result);
 	return result;
 }
 
 async function tipoAccesoAccion(clase, accion) {
-	console.log('fun tipoAccesoAccion clase: ' + clase);
+	//console.log('fun tipoAccesoAccion clase: ' + clase);
 
 	var politica = fs.readFileSync('politicas/' + clase + '.json');
 	var jsonPolitica = JSON.parse(politica);
 
-	console.log('fun tipoAcceso politica: ' + JSON.stringify(jsonPolitica));
+	//console.log('fun tipoAcceso politica: ' + JSON.stringify(jsonPolitica));
 
 	var boolAccion = 0;
 
 	var i = 0;
 	while (i < jsonPolitica.max && boolAccion == 0) {
 		for (const accionRegla of jsonPolitica.reglas[i].action) {
-			console.log('fun tipoAccesoAccion accionRegla: ' + accionRegla);
+			//console.log('fun tipoAccesoAccion accionRegla: ' + accionRegla);
 			if (accionRegla == accion) {
 				//Se permite la accion
 				boolAccion = 1;
@@ -421,18 +495,18 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 
 			for(j=1;j<indexFinUsuario;j++){
 
-				console.log ("usuario posicion "+j +" :"+queryUsuarioArray[j])
-				console.log ("regla posicion "+i +" :"+queryReglasArray[i])
+				// console.log ("usuario posicion "+j +" :"+queryUsuarioArray[j])
+				// console.log ("regla posicion "+i +" :"+queryReglasArray[i])
 
 				if(queryReglasArray[i]==queryUsuarioArray[j]){
 					columnas = columnas + queryReglasArray[i] + ", "
-					console.log ("Coinciden")
+					// console.log ("Coinciden")
 				}
 			}
 		}
-		console.log("columnas: "+columnas)
+		// console.log("columnas: "+columnas)
 		columnas = columnas.slice(0,columnas.length-2)
-		console.log("columnas despues: "+columnas)
+		// console.log("columnas despues: "+columnas)
 
 
 		//Y ahora montamos la query.
@@ -481,7 +555,7 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 
 	}
 	
-	console.log('fun query: queryFinal: '+queryFinal)
+	// console.log('fun query: queryFinal: '+queryFinal)
 
 	try {
 		var resultado = await con.query(queryFinal);
@@ -489,7 +563,7 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 		console.log(err);
 	}
 
-	console.log('fun query result: ' + resultado);
+	// console.log('fun query result: ' + resultado);
 	return resultado;
 
 }
@@ -497,8 +571,8 @@ async function query(queryUsuario, queryReglas, whereReglas) {
 async function introduzcoDatos(datos) {
 	var datosTroceados = datos.split(', ');
 
-	console.log(datos);
-	console.log(datosTroceados);
+	// console.log(datos);
+	// console.log(datosTroceados);
 
 	try {
 		var resultado = await con.query(
@@ -536,7 +610,7 @@ async function borroDatos(id) {
  * objeto json modificado con ruido
  */
 async function ruido(queryJson, tabla, factor) {
-	console.log('me meto en ruido');
+	// console.log('me meto en ruido');
 
 	//Por cada fila de la consulta:
 	for (i in queryJson) {
@@ -587,4 +661,120 @@ async function ruido(queryJson, tabla, factor) {
 	}
 
 	return queryJson;
+}
+
+
+
+/**
+ * 
+ * @param {*} rule 
+ * @param {*} nombreArchivo 
+ * @param {*} iteracion 
+ * 
+ * Crea una view en la base de datos con la regla pasada por parámetro
+ *  
+ * Devuelve: el nombre de la vista creada
+ */
+async function createViewFromRule(rule, nombreArchivo, iteracion){
+
+	var stringQuery =
+		'CREATE OR REPLACE VIEW personas_' +
+		nombreArchivo +
+		'_' +
+		iteracion +
+		' AS ' +
+		rule.resource
+
+	if(!(rule.filter === undefined)){
+		stringQuery = stringQuery + ' ' + rule.filter
+	}
+
+	//Realizamos las querys
+	try {
+		var resultado = await con.query(stringQuery);
+	} catch (err) {
+		console.log(err);
+	}
+
+	return 'personas_' + nombreArchivo + '_' + iteracion
+
+}
+
+
+/**
+ * 
+ * @param {String} claseUsuario 
+ * @param {String} queryUsuario 
+ * 
+ * Realiza las querys a las vistas que tiene disponibles el usuario,
+ * en funcion del metodo de privacidad que puede utilizar
+ * 
+ * Devuelve: un array de jsons con formato {privacyMethod:____, resultados:____}
+ */
+async function querysAVistas(claseUsuario, queryUsuario){
+
+	//NO SE PUEDE HACER SELECCION DE COLUMNAS QUE NO EXISTEN.
+
+	/**
+	 * Tenemos dos opciones:
+	 * - Primero, dejamos una vista por cada regla, y dentro de nuestro objeto regla introducimos un array
+	 * de columnas que son las que se definen en esa regla. Reutilizamos la funcion de arriba. Podemos
+	 * crear una funcion sencillita que reciba la regla y añada ese campo.
+	 * 
+	 * - Segundo, creamos solo una vista por cada clase de usuario. Me gusta mas el primero porque asi tenemos
+	 * asociadas las columnas de la tabla ya con un privacy method, lo que yo creo que nos sera de ayuda. Ademas
+	 * asi nos libramos mejor de los where indiscretos.
+	 * 
+	 */
+
+	//Formato query usuario : SELECT _____ FROM _____ WHERE _____
+
+	//Quiero modificar la tabla que el usuario solicita por la vista a la que realmente puede acceder
+
+	//Tengo que hacer una query por cada regla con get que tenga el usuario definida
+
+	// console.log("funcion queryAVistas: "+queryUsuario)
+
+	var resultadoFinal = [];
+	var queryUsuarioArray = queryUsuario.split(" ")
+
+	for( var i=0; i<politicas[claseUsuario].rules.length;i++){
+		if(politicas[claseUsuario].rules[i].action_type== "GET"){
+
+			//Monto la query
+
+			var queryString = ""
+
+			for(var j=0; j<queryUsuarioArray.length;j++){
+
+				if(j == queryUsuarioArray.indexOf("FROM")+1){
+					//Si es el nombre de la tabla, lo cambiamos por la vista que le corresponde
+					queryString = queryString + politicas[claseUsuario].rules[i].nombreVista + " "
+
+				}else{
+					queryString = queryString + queryUsuarioArray[j] + " "					
+				}
+			}
+
+			//Una vez que esta montada la query, la enviamos a la base de datos
+
+			//Quiero que me devuelva un array con jsons del tipo {privacyMethod:____, resultados:____}
+			//y en la funcion principal, podre enviar estos resultados a un sitio u otro en funcion del metodo que utilicen
+
+			try {
+				var resultado = await con.query(stringQuery);
+			} catch (err) {
+				console.log(err);
+			}
+
+			ressultadoFinal.push({
+				"privacyMethod":politicas[claseUsuario].rules[i].privacyMethod,
+				"resultado": resultado
+			})
+			
+		}
+	}
+
+	return resultadoFinal
+
 }
