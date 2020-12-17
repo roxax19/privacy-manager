@@ -40,7 +40,7 @@ const agentSSL = new https.Agent({
 /* ================== Conexion con la base de datos (hecha con "factory function" warper para usar await) ================== */
 var dbConfig = {
 	host     : '10.152.183.137', //mysql master
-	//host     : 'mysql-master.default.svc.cluster.local',
+	//host   : 'mysql-master.default.svc.cluster.local',
 	user     : 'root',
 	password : '',
 	database : 'test'
@@ -71,6 +71,10 @@ https.createServer(options, app).listen(puerto, () => console.log('Servidor escu
  * Hacemos una lectura inicial de todas las politicas acutales y creamos una view de sql para cada regla get de cada usuario.
  * Luego en cada get que recibimos comprobamos si la query y el filter de las políticas han cambiado. Si han cambiado,
  * borramos la view que existe para ese usuario, y creamos una nuvea. Eso debería ser una función a parte.
+ * 
+ * SQL no puede hacer una query con columnas que no existen en la view. Por eso, cada vez que creemos una view necesitamos
+ * almacenar en un array las columnas que tiene esa view, para luego poder hacer una comparación con las que solicita el usuario
+ * y meter en la query que hacemos en la base de datos solo las que existan dentro de la view
  */
 
 const privacyRulesPath = path.join(__dirname, 'politicas')
@@ -99,11 +103,16 @@ fs.readdir(privacyRulesPath, async function(err, files) {
 
 			for (var i = 0; i < politicas[fileNoExtension].rules.length; i++) {
 				if (politicas[fileNoExtension].rules[i].action_type == 'GET') {
-					var nombreVista = await createViewFromRule(politicas[fileNoExtension].rules[i], fileNoExtension, i)
-
-					//Almacenamos el nombre de las vistas para despues poder hacerles una query
-					politicas[fileNoExtension].rules[i].nombreVista = nombreVista
-
+					//En rule.viewName almacenamos el nombre de la vista, y en rule.columns las columnas que contiene la vista
+					//Si en las reglas hay un *, no tenemos que crear una view, puede acceder a toda la tabla
+					politicas[fileNoExtension].rules[i].viewColumns = await obtainViewColumns(politicas[fileNoExtension].rules[i].resource)
+					if ((politicas[fileNoExtension].rules[i].viewColumns[0] = '*')) {
+						politicas[fileNoExtension].rules[i].viewName = 'personas'
+					}
+					else {
+						var viewName = await createViewFromRule(politicas[fileNoExtension].rules[i], fileNoExtension, i)
+						politicas[fileNoExtension].rules[i].viewName = viewName
+					}
 					console.log(politicas[fileNoExtension].rules[i])
 				}
 			}
@@ -113,16 +122,29 @@ fs.readdir(privacyRulesPath, async function(err, files) {
 
 /* ===================================== GET ===================================== */
 
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
 	//console.log('Priv: ' + JSON.stringify(req.query));
-
-	//Primero realizamos las querys a las diferentes vistas que tenga el usuario disponibles
 
 	//HAY QUE CAMBIAR EL PARÁMETRO TIPO DATO A QUERY STRING
 
-	querysAVistas(req.query.clase, req.query.tipoDato)
+	//Primero realizamos las querys a las diferentes vistas que tenga el usuario disponibles
+	var datos = await querysAVistas(req.query.clase, req.query.tipoDato)
 
-	tipoAccesoGET(req.query.clase, 'GET', req.query.tipoDato).then((acceso) => {
+	res.send(datos)
+
+	//Ahora enviamos los datos a cada funcion segun el metodo asignado
+	var datosProcesados = procesarDatos(datos)
+
+	/**
+	 * 
+	 * for datos
+	 * var datosProdesados = procesoDatos(datos[i] --> esto tiene dentro el privacy method y los datos)
+	 * Lo que hace esta funcion es procesar los datos asignados a cada metodo, y devolverlos con la correspondiente transformacion
+	 * Habria que ver como es el formato de los datos para poder procesarlos. Para mostrarlos, no hace falta unirlos?
+	 * 
+	 */
+
+	/*tipoAccesoGET(req.query.clase, 'GET', req.query.tipoDato).then((acceso) => {
 		if (acceso[0] == 'none') {
 			res.send('No tienes acceso al dato.')
 		}
@@ -197,7 +219,7 @@ app.get('/', function(req, res) {
 		else {
 			res.send('Error en priv, tipoAcceso')
 		}
-	})
+	})*/
 })
 
 /* ===================================== POST ===================================== */
@@ -661,64 +683,126 @@ async function createViewFromRule(rule, nombreArchivo, iteracion) {
  * Devuelve: un array de jsons con formato {privacyMethod:____, resultados:____}
  */
 async function querysAVistas(claseUsuario, queryUsuario) {
-	//NO SE PUEDE HACER SELECCION DE COLUMNAS QUE NO EXISTEN.
-
 	/**
-	 * Tenemos dos opciones:
-	 * - Primero, dejamos una vista por cada regla, y dentro de nuestro objeto regla introducimos un array
-	 * de columnas que son las que se definen en esa regla. Reutilizamos la funcion de arriba. Podemos
-	 * crear una funcion sencillita que reciba la regla y añada ese campo.
+	 * Vamos a dejar una vista por cada regla, y dentro de nuestro objeto regla introducimos un array
+	 * de columnas que son las que se definen en esa regla. Reutilizamos la funcion de arriba.
 	 * 
-	 * - Segundo, creamos solo una vista por cada clase de usuario. Me gusta mas el primero porque asi tenemos
-	 * asociadas las columnas de la tabla ya con un privacy method, lo que yo creo que nos sera de ayuda. Ademas
-	 * asi nos libramos mejor de los where indiscretos.
+	 * A la hora de hacer las querys a las vistas, tenemos que controlas los * que representan a todas las columnas,
+	 * tanto en el usuario como las que hay almacenadas en el campo reglas.columnas
 	 * 
 	 */
 
 	//Formato query usuario : SELECT _____ FROM _____ WHERE _____
 
 	//Quiero modificar la tabla que el usuario solicita por la vista a la que realmente puede acceder
-
-	//Tengo que hacer una query por cada regla con get que tenga el usuario definida
-
-	// console.log("funcion queryAVistas: "+queryUsuario)
+	//Tengo que hacer una query por cada regla con GET que tenga el usuario definida
 
 	var resultadoFinal = []
 	var queryUsuarioArray = queryUsuario.split(' ')
 
+	//Por cada regla con GET
 	for (var i = 0; i < politicas[claseUsuario].rules.length; i++) {
 		if (politicas[claseUsuario].rules[i].action_type == 'GET') {
 			//Monto la query
 
 			var queryString = ''
+			var indexFrom = queryUsuarioArray.indexOf('FROM')
 
-			for (var j = 0; j < queryUsuarioArray.length; j++) {
-				if (j == queryUsuarioArray.indexOf('FROM') + 1) {
-					//Si es el nombre de la tabla, lo cambiamos por la vista que le corresponde
-					queryString = queryString + politicas[claseUsuario].rules[i].nombreVista + ' '
-				}
-				else {
+			//Hacemos cosas distintas en funcion de la posición de la query en la que estemos
+			var j = 0
+
+			// ----- SELECT ------
+			queryString = queryString + queryUsuarioArray[0] + ' '
+
+			// ----- COLUMNAS -----
+			for (j = 1; j < indexFrom; j++) {
+				//Tenemos que compararlas con el array columnas
+				if (politicas[claseUsuario].rules[i].viewColumns[0] == '*') {
+					//Si en las reglas hay un asterisco, podemos dejar la query como esta
 					queryString = queryString + queryUsuarioArray[j] + ' '
 				}
+				else {
+					//Si en las reglas hay columnas, tenemos que filtar las que pueden ir a la query
+					//Primero quitamos la , que pueda quedar en la query del usuario
+					queryUsuarioArray[j] = queryUsuarioArray[j].replace(',', '')
+					//Luego comparamos
+					politicas[claseUsuario].rules[i].viewColumns.forEach((element) => {
+						if (element == queryUsuarioArray[j]) {
+							//Si coincide alguna columna, la ponemos dentro de la query
+							queryString = queryString + queryUsuarioArray[j] + ', '
+						}
+					})
+
+					//La ultima coma la quitamos
+					queryString.slice(0, -1)
+				}
+			}
+
+			// ----- FROM -----
+			queryString = queryString + queryUsuarioArray[indexFrom] + ' '
+
+			// ----- NOMBRE DE LA TABLA -----
+			//Hay que cambiarlo por el nombre de la vista
+			queryString = queryString + politicas[claseUsuario].rules[i].viewName + ' '
+
+			// ----- WHERE Y CONDICIONES -----
+			//Lo dejamos igual
+			for (j = indexFrom + 2; j < queryUsuarioArray.length; j++) {
+				queryString = queryString + queryUsuarioArray[j] + ' '
 			}
 
 			//Una vez que esta montada la query, la enviamos a la base de datos
 
-			//Quiero que me devuelva un array con jsons del tipo {privacyMethod:____, resultados:____}
-			//y en la funcion principal, podre enviar estos resultados a un sitio u otro en funcion del metodo que utilicen
-
 			try {
-				var resultado = await con.query(stringQuery)
+				var resultado = await con.query(queryString)
 			} catch (err) {
 				console.log(err)
 			}
 
-			ressultadoFinal.push({
-				privacyMethod : politicas[claseUsuario].rules[i].privacyMethod,
+			resultadoFinal.push({
+				privacyMethod : politicas[claseUsuario].rules[i].privacy_method,
 				resultado     : resultado
 			})
 		}
 	}
 
 	return resultadoFinal
+}
+
+/**
+ * 
+ * @param {String} queryString //query almacenada en las reglas
+ * 
+ * Devuelve: un array con las columnas despues del SELECT
+ */
+async function obtainViewColumns(queryString) {
+	var queryStringArray = queryString.split(' ')
+	var resultado = []
+
+	//Si la segunda palabra es un *, lo guardamos y lo devolvemos directamente
+	if (queryStringArray[1] == '*') {
+		resultado.push('*')
+	}
+	else {
+		//Si no es un *, tenemos que quedarnos con las posiciones 1 hasta FROM
+
+		var exit = 0
+		var i = 1
+		while (i < queryStringArray.length && exit == 0) {
+			if (queryStringArray[i] == 'FROM') {
+				exit = 1
+			}
+			else {
+				resultado.push(queryStringArray[i].replace(',', ''))
+				i++
+			}
+		}
+	}
+	return resultado
+}
+
+async function procesarDatos(datos) {
+	//Tenemos que procesar los datos en funcion de su privacy_method
+
+	for (var i = 0; i < datos.length; i++) {}
 }

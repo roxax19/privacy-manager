@@ -4,8 +4,7 @@
 		{
 			"action_type":"GET",			
 			"privacy_method":"exact",
-			"resource": "SELECT nombre, sueldo, lat, lon FROM personas",
-			"filter": "WHERE id=0"
+			"resource": "SELECT * FROM personas"
 		},
 		{
 			"action_type":"POST"
