@@ -3,7 +3,7 @@
 	"rules": [
 		{
 			"action_type":"GET",			
-			"privacy_method":"exact",
+			"privacy_method":"Exact",
 			"resource": "SELECT * FROM personas"
 		},
 		{

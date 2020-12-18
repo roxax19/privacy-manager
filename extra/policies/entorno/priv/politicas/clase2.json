@@ -3,12 +3,12 @@
 	"rules": [
 		{
 			"action_type":"GET",			
-			"privacy_method":"exact",
+			"privacy_method":"Exact",
 			"resource": "SELECT nombre, sueldo, lat, lon FROM personas"
 		},
 		{
 			"action_type":"GET",			
-			"privacy_method":"medNoise",
+			"privacy_method":"MedNoise",
 			"resource": "SELECT edad, profesion FROM personas"
 
 		},

@@ -18,7 +18,7 @@ Mejora de las políticas de privacidad
 			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
 			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
 				Hay que unir los datos recogidos de exact y noise mediante la id, para ello meter id en todas las views y querys y luego habra que quitarlas
-				Despues tendremos que adaptar el metodo gen para que siga funcionando como ahora, y con eso se lo podrias presentar a los tutore
+
 				Y a ver que te proponen, propon tu buscar un mejor metodo de anonimizacion.
 					Intentar hacerlo mediante llamadas desde js, no con comunicaciones a otro nodo.
 					
@@ -31,7 +31,9 @@ Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
 			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
-			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL	
+			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
+				Creamos las views al inicio y vamos modificando conforme se modifiquen las reglas
+				
 
 Añadir conexión con distintas plataformas de IoT.
 	Implementar la APi para Fiware --> nodeRed
