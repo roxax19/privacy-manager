@@ -4,10 +4,15 @@
 		{
 			"action_type":"GET",			
 			"privacy_method":"Exact",
-			"resource": "SELECT * FROM personas"
+			"resource": "SELECT nombre, edad FROM personas"
 		},
 		{
-			"action_type":"POST"
+			"action_type":"GET",			
+			"privacy_method":"MaxNoise",
+			"resource": "SELECT profesion, sueldo FROM personas"
+		},
+		{
+			"action_type":"PUSH"
 		},
 		{
 			"action_type":"DELETE"

@@ -63,18 +63,18 @@ function makeDb(config) {
 
 var con = makeDb(dbConfig)
 
-/* ===================================== Creacion del servidor ===================================== */
-const puerto = 8082
-//app.listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto));
-https.createServer(options, app).listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto))
-
-/* ===================================== Direcciones de servicios ===================================== */
+/* ===================================== Direcciones de modulos ===================================== */
 // -- HTTPS --
 //var gen = 'https://10.152.183.203:8083'
 //var gen = 'https://gen.default.svc.cluster.local:8083';
 
 // -- HTTP --
 var gen = 'http://10.152.183.203:8083'
+
+/* ===================================== Creacion del servidor ===================================== */
+const puerto = 8082
+//app.listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto));
+https.createServer(options, app).listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto))
 
 /* ===================================== Lectura reglas privacidad ===================================== */
 
@@ -100,13 +100,14 @@ app.get('/', async function(req, res) {
 
 	//HAY QUE CAMBIAR EL PARÁMETRO TIPO DATO A QUERY STRING --> EN TODOS LOS MODULOS
 
+	//TENEMOS PENDIENTE CONTROLAR EL ACCESO? QUE SE DEVUELVE EN CASO DE QUE NO TENGA PERMISO? ME VALE DEVOLVER NADA
+
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
-
 		await updateRules()
 
 		//Despues realizamos las querys a las diferentes vistas que tenga el usuario disponibles
-		var datos = await querysAVistas(req.query.clase, req.query.tipoDato)
+		var datos = await querysAVistas(req.query.clase, req.query.stringQuery)
 
 		//Ahora enviamos los datos a cada funcion segun el metodo asignado
 		var datosProcesados = await procesarDatos(datos)
@@ -119,103 +120,91 @@ app.get('/', async function(req, res) {
 
 /* ===================================== POST ===================================== */
 
-app.post('/', function(req, res) {
+app.post('/', async function(req, res) {
 	console.log('req.body.clase: ' + req.body.clase)
 	console.log('req.body.datos: ' + req.body.datos)
 
-	//Vemos si tenemos permiso para introducir datos
-	tipoAccesoAccion(req.body.clase, 'POST').then((resultado) => {
-		//Si devuelve 0, introducimos los datos en la tabla
-		if (resultado == 0) {
-			introduzcoDatos(req.body.datos)
-				.then((resultado) => {
-					console.log(resultado)
-					res.send(resultado)
-				})
-				.catch((err) => {
-					console.log(err)
-				})
+	try {
+		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
+		await updateRules()
+
+		//Vemos si tenemos permiso para introducir los datos
+		//HABRA QUE CAMBIAR PARA ADAPTARLO A LAS NUEVAS REGLAS
+		var acceso = await tipoAccesoAccion(req.body.clase, 'PUSH')
+
+		if (acceso == 0) {
+			var respQuery = await introduzcoDatos(req.body.datos)
+			console.log(respQuery)
+			res.send(respQuery)
 		}
 		else {
-			res.send('No tienes permiso para hacer POST')
+			res.send('No puede introducir datos')
 		}
-	})
+	} catch (error) {
+		console.log(error)
+	}
 })
 
 /* ===================================== DELETE ===================================== */
 
-app.delete('/', function(req, res) {
+app.delete('/', async function(req, res) {
 	console.log('req.body.clase: ' + req.body.clase)
 	console.log('req.body.datos: ' + req.body.id)
 
-	//Vemos si tenemos permiso para introducir datos
-	tipoAccesoAccion(req.body.clase, 'DELETE').then((resultado) => {
-		//Si devuelve 0, borramos los datos de la tabla
-		if (resultado == 0) {
-			borroDatos(req.body.id)
-				.then((resultado) => {
-					console.log(resultado)
-					res.send(resultado)
-				})
-				.catch((err) => {
-					console.log(err)
-				})
+	try {
+		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
+		await updateRules()
+
+		//Vemos si tenemos permiso para introducir los datos
+		//HABRA QUE CAMBIAR PARA ADAPTARLO A LAS NUEVAS REGLAS
+		var acceso = await tipoAccesoAccion(req.body.clase, 'DELETE')
+
+		if (acceso == 0) {
+			var respQuery = await borroDatos(req.body.id)
+			console.log(respQuery)
+			res.send(respQuery)
 		}
 		else {
-			res.send('No tienes permiso para hacer DELETE')
+			res.send('No puede eliminar datos')
 		}
-	})
+	} catch (error) {
+		console.log(error)
+	}
 })
 
 /* ===================================== Funciones ===================================== */
 
 /**
- * Mira el tipo de acceso que tenemos.
- * Para ello, lee el archivo json con el nombre de la clase que le han mandado
- * @param {string} clase 
- * @param {string} accion 
- * @param {string} tipoDato 
  * 
- * Devuelve un array:
- * "[none, query, filter]" si no tenemos acceso
- * "[exact, query, filter]" si devolvemos el dato sin ninguna privacidad
- * "[gen, query, filter]" si devolvemos una generalizacion del dato (usado para strings)
- * "[noise, query, filter]" si devolvemos el dato con algun tipo de ruido
+ * @param {String} clase 
+ * @param {String} accion 
+ * 
+ * Comprueba si hay alguna regla con la accion solicitada para la clase
+ * 
+ * Devuelve: 0 si hay acceso, 1 si no hay acceso
  */
-
 async function tipoAccesoAccion(clase, accion) {
-	var politica = fs.readFileSync('politicas/' + clase + '.json')
-	var jsonPolitica = JSON.parse(politica)
+	//Comprobamos si tenemos permiso para hacer PUSH o DELETE
 
-	var boolAccion = 0
-
-	var i = 0
-	while (i < jsonPolitica.max && boolAccion == 0) {
-		for (const accionRegla of jsonPolitica.reglas[i].action) {
-			//console.log('fun tipoAccesoAccion accionRegla: ' + accionRegla);
-			if (accionRegla == accion) {
-				//Se permite la accion
-				boolAccion = 1
-				return 0
-			}
+	for (var i = 0; i < politics[clase].rules.length; i++) {
+		if (politics[clase].rules[i].action_type == accion) {
+			//Si tenemos permiso, devolvemos 0
+			return 0
 		}
-		i++
 	}
 
+	//Si no hemos encontrado ninguna regla con permiso, devolvemos 1
 	return 1
 }
 
 /**
- * Realiza una comparacion entre la query del usuario y la que hay en las reglas.
- * Después, manda la query a la base de datos
  * 
- * @param {String} queryUsuario --> estructura SELECT sth WHERE
- * @param {String} queryReglas --> estructura SELECT sth FROM sth 
- * @param {String} whereReglas --> estructura WHERE sth
+ * @param {String} datos 
  * 
- * Devuelve los datos recogidos de la base de datos
+ * Almacena los datos introducidos por el usuario mediante la API en la base de datos
+ * 
+ * Devuelve: La respuesta de la base de datos
  */
-
 async function introduzcoDatos(datos) {
 	var datosTroceados = datos.split(', ')
 
@@ -233,6 +222,14 @@ async function introduzcoDatos(datos) {
 	return resultado
 }
 
+/**
+ * 
+ * @param {Number} id 
+ * 
+ * Elimina la fila con el id determinado por el usuario
+ * 
+ * Devuelve: La respuesta de la base de datos
+ */
 async function borroDatos(id) {
 	try {
 		var resultado = await con.query('DELETE FROM personas WHERE id=?', id)
@@ -250,6 +247,7 @@ async function borroDatos(id) {
  * 
  * @param {json} queryJson
  * @param {string} tabla
+ * @param {string} fator
  * 
  * Devuelve: objeto json modificado con ruido
  */
@@ -259,7 +257,7 @@ async function ruido(queryJson, tabla, factor) {
 	//Por cada fila de la consulta:
 	for (i in queryJson) {
 		//Eliminamos la fila de id porque no nos interesa
-		delete queryJson[i]['id']
+		//delete queryJson[i]['id']
 
 		//Deberiamos leer la ontología, y dependiendo del tipo de variable que sea añadirle el ruido definido en la ontología
 
@@ -334,6 +332,40 @@ async function createViewFromRule(rule, nombreArchivo, iteracion) {
 	return 'personas_' + nombreArchivo + '_' + iteracion
 }
 
+async function createViewFromViewColumns(rule, clase, iteracion) {
+	var stringQuery = 'CREATE OR REPLACE VIEW personas_' + clase + '_' + iteracion + ' AS '
+
+	//Creamos la parte del SELECT
+	var stringSelect = 'SELECT '
+
+	//Añadimos las columnas
+	for (var i = 0; i < rule.viewColumns.length; i++) {
+		stringSelect = stringSelect + rule.viewColumns[i] + ', '
+	}
+
+	//Quitamos la ultima coma y espacio, y completamos
+	stringSelect = stringSelect.slice(0, -2)
+	stringSelect = stringSelect + ' FROM personas'
+
+	//y añadimos
+	stringQuery = stringQuery + stringSelect
+
+	//Si tiene filtro, lo añadimos
+	if (!(rule.filter === undefined)) {
+		stringQuery = stringQuery + ' ' + rule.filter
+	}
+
+	//Realizamos las querys
+	try {
+		var resultado = await con.query(stringQuery)
+	} catch (err) {
+		console.log(err)
+	}
+
+	//Y devolvemos el nombre de la vista
+	return 'personas_' + clase + '_' + iteracion
+}
+
 /**
  * 
  * @param {String} claseUsuario 
@@ -346,8 +378,8 @@ async function createViewFromRule(rule, nombreArchivo, iteracion) {
  */
 async function querysAVistas(claseUsuario, queryUsuario) {
 	/**
-	 * Vamos a dejar una vista por cada regla, y dentro de nuestro objeto regla introducimos un array
-	 * de columnas que son las que se definen en esa regla. Reutilizamos la funcion de arriba.
+	 * Vamos a dejar una vista por cada regla GET, y dentro de nuestro objeto regla introducimos un array
+	 * de columnas que son las que se definen en esa regla.
 	 * 
 	 * A la hora de hacer las querys a las vistas, tenemos que controlas los * que representan a todas las columnas,
 	 * tanto en el usuario como las que hay almacenadas en el campo reglas.columnas
@@ -377,14 +409,25 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 			queryString = queryString + queryUsuarioArray[0] + ' '
 
 			// ----- COLUMNAS -----
-			for (j = 1; j < indexFrom; j++) {
-				//Tenemos que compararlas con el array columnas
-				if (politics[claseUsuario].rules[i].viewColumns[0] == '*') {
-					//Si en las reglas hay un asterisco, podemos dejar la query como esta
-					queryString = queryString + queryUsuarioArray[j] + ' '
+			if (politics[claseUsuario].rules[i].viewColumns[0] == '*') {
+				//Si en las reglas hay un *, dejamos la query del usuario
+
+				//Primero quitamos la , que pueda quedar en la query del usuario
+				queryUsuarioArray[j] = queryUsuarioArray[j].replace(',', '')
+
+				//Si en las reglas hay un *, podemos dejar la query del usuario como esta añadiendole la columna id
+				for (j = 1; j < indexFrom; j++) {
+					queryString = queryString + queryUsuarioArray[j] + ', '
 				}
-				else {
-					//Si en las reglas hay columnas, tenemos que filtar las que pueden ir a la query
+				queryString = queryString + 'id '
+			}
+			else if (queryUsuarioArray[1] == '*') {
+				//Si en el usuario hay un *, podemos realizar esta query
+				queryString = queryString + queryUsuarioArray[1] + ' '
+			}
+			else {
+				//Si hay columnas en el usuario y en las reglas, tenemos que hacer la comparacion
+				for (j = 1; j < indexFrom; j++) {
 					//Primero quitamos la , que pueda quedar en la query del usuario
 					queryUsuarioArray[j] = queryUsuarioArray[j].replace(',', '')
 					//Luego comparamos
@@ -394,10 +437,9 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 							queryString = queryString + queryUsuarioArray[j] + ', '
 						}
 					})
-
-					//La ultima coma la quitamos
-					queryString.slice(0, -1)
 				}
+				//Añadimos id
+				queryString = queryString + 'id '
 			}
 
 			// ----- FROM -----
@@ -462,6 +504,10 @@ async function obtainViewColumns(queryString) {
 			}
 		}
 	}
+
+	//Añadimos la columna ID para poder juntar despues los datos de personas de diferentes metodos
+	resultado.push('id')
+
 	return resultado
 }
 
@@ -482,21 +528,39 @@ async function procesarDatos(datos) {
 	 * 
 	 */
 
+	//Para esta modificacion, tendriamos que guardar los datos procesados tambien con el metodo que los ha procesado.
+	//Asi, si el metodo seleccionado solo afecta a las columnas, debemos juntar esos datos mediante la id
+	//Y luego finalmente, si queremos, quitra la id como se hacia en lo de ruido
+
 	var datosProcesados = []
+	var datosAux = [] //Array donde mezclaremos los datos
+	var resultado = []
 
 	for (var i = 0; i < datos.length; i++) {
 		if (datos[i].privacy_method == 'Exact') {
 			//No hacemos nada, los devolvemos tal cual
-			datosProcesados.push(datos[i].datosSQL)
+			datosProcesados.push({
+				privacy_method  : datos[i].privacy_method,
+				datosProcesados : datos[i].datosSQL
+			})
 		}
 		else if (datos[i].privacy_method == 'MinNoise') {
-			datosProcesados.push(await ruido(datos[i].datosSQL, 'personas', 0.1))
+			datosProcesados.push({
+				privacy_method  : datos[i].privacy_method,
+				datosProcesados : await ruido(datos[i].datosSQL, 'personas', 0.1)
+			})
 		}
 		else if (datos[i].privacy_method == 'MedNoise') {
-			datosProcesados.push(await ruido(datos[i].datosSQL, 'personas', 0.5))
+			datosProcesados.push({
+				privacy_method  : datos[i].privacy_method,
+				datosProcesados : await ruido(datos[i].datosSQL, 'personas', 0.5)
+			})
 		}
 		else if (datos[i].privacy_method == 'MaxNoise') {
-			datosProcesados.push(await ruido(datos[i].datosSQL, 'personas', 1))
+			datosProcesados.push({
+				privacy_method  : datos[i].privacy_method,
+				datosProcesados : await ruido(datos[i].datosSQL, 'personas', 1)
+			})
 		}
 		else if (datos[i].privacy_method == 'Generalization') {
 			//Hacemos llamada al modulo de generalizar
@@ -504,13 +568,48 @@ async function procesarDatos(datos) {
 				//Dado que en un futuro quitaremos esta conexion, la dejamos sin ssl
 				//var response = await axios.get(gen, { httpsAgent: agentSSL })
 				var response = await axios.get(gen)
-				datosProcesados.push(response.data)
+				datosProcesados.push({
+					privacy_method  : datos[i].privacy_method,
+					datosProcesados : response.data
+				})
 			} catch (error) {
 				console.log(error)
 			}
 		}
 	}
+
+	//Ahora juntamos los que se pueda por id
+	var primero = 1
+	for (var i = 0; i < datosProcesados.length; i++) {
+		if (
+			datosProcesados[i].privacy_method == 'Exact' ||
+			datosProcesados[i].privacy_method == 'MinNoise' ||
+			datosProcesados[i].privacy_method == 'MedNoise' ||
+			datosProcesados[i].privacy_method == 'MaxNoise'
+		) {
+			//Se puede juntar
+			if (primero) {
+				//Como es el primero, hacemos un push normal
+				datosAux.push(datosProcesados[i].datosProcesados)
+				primero = 0
+			}
+			else {
+				//Como no es el primero, hay que ir combinandolos segun id
+				for (var j = 0; datosAux.length; j++) {
+					if (datosProcesados[i].datosProcesados.id == datosAux[j].id) {
+						//Combinamos todos sus elementos
+						combinarJson(datosAux[j], datosProcesados[i].datosProcesados)
+					}
+				}
+			}
+		}
+	}
+
 	return datosProcesados
+}
+
+async function combinarJson(jsonFinal, jsonAnadido) {
+	//Tengo que meter todas las clave:valor del jsonAnadido dentro del jsonFinal, excepto si son id
 }
 
 async function updateRules() {
@@ -553,11 +652,12 @@ async function updateRules() {
 							//En rule.viewName almacenamos el nombre de la vista, y en rule.columns las columnas que contiene la vista
 							//Si en las reglas hay un *, no tenemos que crear una view, puede acceder a toda la tabla
 							politics[fileNoExtension].rules[i].viewColumns = await obtainViewColumns(politics[fileNoExtension].rules[i].resource)
+							//console.log('viewColumns tras su funcion: ' + politics[fileNoExtension].rules[i].viewColumns)
 							if (politics[fileNoExtension].rules[i].viewColumns[0] == '*') {
 								politics[fileNoExtension].rules[i].viewName = 'personas'
 							}
 							else {
-								var viewName = await createViewFromRule(politics[fileNoExtension].rules[i], fileNoExtension, i)
+								var viewName = await createViewFromViewColumns(politics[fileNoExtension].rules[i], fileNoExtension, i)
 								politics[fileNoExtension].rules[i].viewName = viewName
 							}
 							//console.log(politics[fileNoExtension].rules[i])
