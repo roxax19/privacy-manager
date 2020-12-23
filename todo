@@ -18,11 +18,10 @@ Mejora de las políticas de privacidad
 			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
 			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
 				Hay que unir los datos recogidos de exact y noise mediante la id, para ello meter id en todas las views y querys y luego habra que quitarlas
-
-				Y a ver que te proponen, propon tu buscar un mejor metodo de anonimizacion.
-					Intentar hacerlo mediante llamadas desde js, no con comunicaciones a otro nodo.
-					
-					HE DEJADO ALGO A MEDIAS
+					Para unir los datos mediante la id, podemos utilizar UNION de SQL. Habria que cambiar y almacenar las querys en vez de los datos directamente, pero no debe ser muy complicacdo. Habria que revertir los cambios que hicimos para que se mostrara la id, y para que se almacenaran al lado del metodo de privacidad.
+					Resolver bugs de orden de variables en la peticion del usuario
+					SQL INJECTION
+				
 					
 		COMO FUNCIONA EL ALGORITMO GEN Y VER SI PUDEO CAMBIAR PARA QUE SE HAGA SOBRE LA QUERY QUE YO SOLICITO.
 		ESTO CUANDO YA FUNCIONE TODO

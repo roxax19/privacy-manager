@@ -1,0 +1,34 @@
+{
+    "id":"",
+    "rules":[
+        {
+            "action_type":"",
+            "privacy-method":"",
+            "resource":"",
+            "filter":"",
+            "conditions":[
+                {
+                    "requester":{
+                        "role":"",
+                        "location":"",
+                        "purpose":"",
+                        "max_requests":""
+                    },
+                    "context":{
+                        "timeofday":"",
+                        "data_type":"",
+                        "granularity":"",
+                        "data_last_modification_dates":"",
+                        "data_location":[]
+                    },
+                    "edge":{
+                        "Hw":"",
+                        "Sw":"",
+                        "conectivity":""
+                    }
+
+                }
+            ]
+        }
+    ]
+}

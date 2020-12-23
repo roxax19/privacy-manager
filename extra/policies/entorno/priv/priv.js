@@ -578,39 +578,42 @@ async function procesarDatos(datos) {
 		}
 	}
 
-	//Ahora juntamos los que se pueda por id
-	var primero = 1
-	for (var i = 0; i < datosProcesados.length; i++) {
-		if (
-			datosProcesados[i].privacy_method == 'Exact' ||
-			datosProcesados[i].privacy_method == 'MinNoise' ||
-			datosProcesados[i].privacy_method == 'MedNoise' ||
-			datosProcesados[i].privacy_method == 'MaxNoise'
-		) {
-			//Se puede juntar
-			if (primero) {
-				//Como es el primero, hacemos un push normal
-				datosAux.push(datosProcesados[i].datosProcesados)
-				primero = 0
-			}
-			else {
-				//Como no es el primero, hay que ir combinandolos segun id
-				for (var j = 0; datosAux.length; j++) {
-					if (datosProcesados[i].datosProcesados.id == datosAux[j].id) {
-						//Combinamos todos sus elementos
-						combinarJson(datosAux[j], datosProcesados[i].datosProcesados)
-					}
-				}
-			}
-		}
-	}
+	// //Ahora juntamos los que se pueda por id
+	// var primero = 1
+	// for (var i = 0; i < datosProcesados.length; i++) {
+	// 	if (
+	// 		datosProcesados[i].privacy_method == 'Exact' ||
+	// 		datosProcesados[i].privacy_method == 'MinNoise' ||
+	// 		datosProcesados[i].privacy_method == 'MedNoise' ||
+	// 		datosProcesados[i].privacy_method == 'MaxNoise'
+	// 	) {
+	// 		//Se puede juntar
+	// 		if (primero) {
+	// 			//Como es el primer array, hacemos un push normal
+	// 			datosAux = datosProcesados[i].datosProcesados //almacena [{id,nombre...}{...}{...}{...}]
+	// 			primero = 0
+	// 		}
+	// 		else {
+	// 			//Como no es el primer array, hay que ir combinandolos segun id.
+	// 			//Tengo que hacer un loop entre los dos array
+	// 			for (var j = 0; datosAux.length; j++) {
+	// 				console.log("datosProcesados: "+JSON.stringify(datosProcesados[i]))
+	// 				console.log("datosAux: "+JSON.stringify(datosAux))
+	// 				//for (var k = 0;datosAux)
+
+	// 				if (datosProcesados[i].datosProcesados.id == datosAux[j].id) {
+	// 					//Combinamos todos sus elementos
+	// 					combinarJson(datosAux[j], datosProcesados[i].datosProcesados)
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	return datosProcesados
 }
 
-async function combinarJson(jsonFinal, jsonAnadido) {
-	//Tengo que meter todas las clave:valor del jsonAnadido dentro del jsonFinal, excepto si son id
-}
+
 
 async function updateRules() {
 	//Comprobamos si las reglas de privacidad han cambiado, y si es asi las volvemos a leer
