@@ -401,14 +401,19 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 
 			var queryString = ''
 			var indexFrom = queryUsuarioArray.indexOf('FROM')
+			var columnasString = ''
+			var nombreTablaString = ''
+			var whereString = ''
 
 			//Hacemos cosas distintas en funcion de la posición de la query en la que estemos
+			//Algunas partes de la string las guardamos en string distintas para poder evitar SQL injection
 			var j = 0
 
 			// ----- SELECT ------
-			queryString = queryString + queryUsuarioArray[0] + ' '
+			//queryString = queryString + queryUsuarioArray[0] + ' '
 
 			// ----- COLUMNAS -----
+			//Tenemos que escapar las columnas que vienen del usuario
 			if (politics[claseUsuario].rules[i].viewColumns[0] == '*') {
 				//Si en las reglas hay un *, dejamos la query del usuario
 
@@ -417,13 +422,13 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 
 				//Si en las reglas hay un *, podemos dejar la query del usuario como esta añadiendole la columna id
 				for (j = 1; j < indexFrom; j++) {
-					queryString = queryString + queryUsuarioArray[j] + ', '
+					columnasString = columnasString + mysql.escape(queryUsuarioArray[j]) + ', '
 				}
-				queryString = queryString + 'id '
+				columnasString = columnasString + 'id '
 			}
 			else if (queryUsuarioArray[1] == '*') {
-				//Si en el usuario hay un *, podemos realizar esta query
-				queryString = queryString + queryUsuarioArray[1] + ' '
+				//Si en el usuario hay un *, podemos realizar esta query porque la vista esta filtrada ya
+				columnasString = columnasString + queryUsuarioArray[1]
 			}
 			else {
 				//Si hay columnas en el usuario y en las reglas, tenemos que hacer la comparacion
@@ -434,33 +439,42 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 					politics[claseUsuario].rules[i].viewColumns.forEach((element) => {
 						if (element == queryUsuarioArray[j]) {
 							//Si coincide alguna columna, la ponemos dentro de la query
-							queryString = queryString + queryUsuarioArray[j] + ', '
+							columnasString = columnasString + mysql.escape(queryUsuarioArray[j]) + ', '
 						}
 					})
 				}
 				//Añadimos id
-				queryString = queryString + 'id '
+				columnasString = columnasString + 'id '
 			}
 
 			// ----- FROM -----
-			queryString = queryString + queryUsuarioArray[indexFrom] + ' '
+			//queryString = queryString + queryUsuarioArray[indexFrom] + ' '
 
 			// ----- NOMBRE DE LA TABLA -----
 			//Hay que cambiarlo por el nombre de la vista
-			queryString = queryString + politics[claseUsuario].rules[i].viewName + ' '
+			nombreTablaString = nombreTablaString + politics[claseUsuario].rules[i].viewName
 
 			// ----- WHERE Y CONDICIONES -----
+			//Vamos a quitar el where porque es compplicado escaparlo
 			//Lo dejamos igual
-			for (j = indexFrom + 2; j < queryUsuarioArray.length; j++) {
-				queryString = queryString + queryUsuarioArray[j] + ' '
-			}
+			// for (j = indexFrom + 3; j < queryUsuarioArray.length; j++) {
+			// 	whereString = whereString + queryUsuarioArray[j] + ' '
+			// }
 
 			//Una vez que esta montada la query, la enviamos a la base de datos
 
-			console.log('querys que se mandan: ' + queryString)
+			console.log('querys que se mandan: ' + "SELECT "+ mysql.escape(columnasString) + "FROM \`"+nombreTablaString+"\`")
 
 			try {
-				var resultado = await con.query(queryString)
+				//Quitamos la parte del where porque es dificil escapar
+				// if(whereString == ""){
+					//var resultado = await con.query("SELECT ? FROM ?",[columnasString, nombreTablaString])
+					var resultado = await con.query("SELECT "+columnasString+" FROM \`"+nombreTablaString+"\`")
+				// }
+				// else{
+				// 	//var resultado = await con.query("SELECT ? FROM ? WHERE ?",[columnasString, nombreTablaString, whereString])
+				// 	//var resultado = await con.query("SELECT "+columnasString+" FROM \`"+nombreTablaString+"\` WHERE \`"+whereString+"\`")
+				// }
 			} catch (err) {
 				console.log(err)
 			}

@@ -15,12 +15,7 @@ Mejora de las políticas de privacidad
 Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
-			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
-			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
-				Hay que unir los datos recogidos de exact y noise mediante la id, para ello meter id en todas las views y querys y luego habra que quitarlas
-					Para unir los datos mediante la id, podemos utilizar UNION de SQL. Habria que cambiar y almacenar las querys en vez de los datos directamente, pero no debe ser muy complicacdo. Habria que revertir los cambios que hicimos para que se mostrara la id, y para que se almacenaran al lado del metodo de privacidad.
-					Resolver bugs de orden de variables en la peticion del usuario
-					SQL INJECTION
+			Probar y bucsar mas bugs. Mover a dentro del cluster cuando terminado
 				
 					
 		COMO FUNCIONA EL ALGORITMO GEN Y VER SI PUDEO CAMBIAR PARA QUE SE HAGA SOBRE LA QUERY QUE YO SOLICITO.
@@ -34,6 +29,7 @@ Mejora de las políticas de privacidad
 			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
 			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
 				Creamos las views al inicio y vamos modificando conforme se modifiquen las reglas
+			Evitar SQL injection
 				
 
 Añadir conexión con distintas plataformas de IoT.
