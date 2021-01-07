@@ -1,26 +1,21 @@
 {
-	"max": 3,
-	"reglas": [
+	"id": 0,
+	"rules": [
 		{
-			"action": [
-				"GET"
-			],
-			"data": [
-				"all"
-			],
-			"privacyMethod": [
-				"exact"
-			]
+			"action_type":"GET",			
+			"privacy_method":"Exact",
+			"resource": "SELECT nombre, edad FROM personas"
 		},
 		{
-			"action": [
-				"POST"
-			]
+			"action_type":"GET",			
+			"privacy_method":"MaxNoise",
+			"resource": "SELECT profesion, sueldo FROM personas"
 		},
 		{
-			"action": [
-				"DELETE"
-			]
+			"action_type":"PUSH"
+		},
+		{
+			"action_type":"DELETE"
 		}
 	]
 }

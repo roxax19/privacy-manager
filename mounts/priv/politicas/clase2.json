@@ -1,40 +1,23 @@
 {
 	"id": 1,
-	"reglas": [
+	"rules": [
 		{
-			"action": [
-				"GET"
-			],
-			"data": [
-				"personal"
-			],
-			"privacyMethod": [
-				"exact"
-			]
+			"action_type":"GET",			
+			"privacy_method":"Exact",
+			"resource": "SELECT nombre, sueldo, lat, lon FROM personas"
 		},
 		{
-			"action": [
-				"GET"
-			],
-			"data": [
-				"profesion"				
-			],
-			"privacyMethod": [
-				"maxNoise"
-			]
+			"action_type":"GET",			
+			"privacy_method":"MedNoise",
+			"resource": "SELECT edad, profesion FROM personas"
+
 		},
 		{
-			"action": [
-				"GET"
-			],
-			"data": [
-				"salud"
-			],
-			"privacyMethod": [
-				"gen"
-			]
+			"action_type":"POST"
+		},
+		{
+			"action_type":"DELETE"
 		}
 	]
 }
-
 

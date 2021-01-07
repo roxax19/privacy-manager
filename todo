@@ -15,11 +15,9 @@ Mejora de las políticas de privacidad
 Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
-			Probar y bucsar mas bugs. Mover a dentro del cluster cuando terminado
+			Implementar control de horario
 				
-					
-		COMO FUNCIONA EL ALGORITMO GEN Y VER SI PUDEO CAMBIAR PARA QUE SE HAGA SOBRE LA QUERY QUE YO SOLICITO.
-		ESTO CUANDO YA FUNCIONE TODO
+				
 
 
 -----DONE:
