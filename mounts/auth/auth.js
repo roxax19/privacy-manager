@@ -66,9 +66,8 @@ app.get('/', function(req, res) {
 /**Yo recibo un post con un usuario y contrasena
  * y le devuelvo un token */
 
-app.post('/', function(req, res) {
-	//Cambiar el secreto con numeros generados aleatoriamente?? Seguimiento de esos numeros?
-	//Habria que almacenar el hash en vez de la contrasena
+app.post('/', async function(req, res) {
+	//Habria que almacenar un hash en vez de la contraseña
 
 	//Comprobamos si me mandan email o usuario, token o nada
 	if (typeof req.body.token !== 'undefined') {
@@ -76,31 +75,29 @@ app.post('/', function(req, res) {
 		//respondo con la traduccion del token
 		var payload = jwt.verify(req.body.token, 'shhhhh')
 		console.log('Me han enviado un token')
-		console.log('Payload.class: ' + payload.class)
-		res.status(200).send(payload.class)
+		console.log('Payload: ' + JSON.stringify(payload))
+		res.status(200).send({ id: payload.id, clase: payload.clase })
 	}
 	else if (typeof req.body.email !== 'undefined' || typeof req.body.contrasena !== 'undefined') {
 		//se ha enviado correo y contraseña
 		//Comprobamos si la contrasena es correcta
-		comprobarContrasena(req.body.email, req.body.contrasena).then((resultado) => {
-			if (resultado == 2) {
-				//Contraseña incorrecta
-				res.status(401).send('Contraseña incorrecta')
-			}
-			else if (resultado == 1) {
-				//Usuario no existe
-				res.status(401).send('El usuario no existe')
-			}
-			else {
-				//Correcta, le hago el token y se lo devuelvo
-				// jwt.sing(payload, key)
-				console.log(resultado)
-				var token = jwt.sign({ class: resultado }, 'shhhhh')
-				var object = new Object()
-				object.token = token
-				res.send(object)
-			}
-		})
+		var resultado = await comprobarContrasena(req.body.email, req.body.contrasena)
+		if (resultado == 2) {
+			//Contraseña incorrecta
+			res.status(401).send('Contraseña incorrecta')
+		}
+		else if (resultado == 1) {
+			//Usuario no existe
+			res.status(401).send('El usuario no existe')
+		}
+		else {
+			//Correcta, le hago el token (id, clase) y lo devuelvo
+			//console.log({ id: resultado.id, clase: resultado.clase })
+			var token = jwt.sign({ id: resultado.id, clase: resultado.clase }, 'shhhhh')
+			var object = new Object()
+			object.token = token
+			res.send(object)
+		}
 	}
 	else {
 		console.log('No se ha introducido email o contrasena')
@@ -114,22 +111,22 @@ app.post('/', function(req, res) {
 
 /**comprobarContrasena
  * Devuelve:
- * clase si la contrasena es correcta
+ * objeto con id y clase si la contraseña es correcta
  * 1 si no se encuentra el usuario
  * 2 si la contrasena no es correcta
  */
 async function comprobarContrasena(email, contrasena) {
 	//Hay que ver si tiene autorizacion:
-	var result = await con.query('SELECT contrasena, clase FROM usuarios WHERE email=?', email)
+	var result = await con.query('SELECT contrasena, clase, id FROM usuarios WHERE email=?', email)
 
 	//Vemos si existe el usuario:
-	console.log('result 0: ' + result[0])
-	console.log('control 2')
+	console.log('result[0] ' + result[0]) //devuelve un array con un json dentro
 
 	if (typeof result[0] === 'undefined') {
+		//no se han devuelto datos desde la bbdd
 		console.log('El usuario no existe')
 		return 1
-	} //else
+	}
 
 	console.log('contrasenaQuery: : ' + result[0].contrasena + '.')
 	console.log('contrasena proporcionada: ' + contrasena + '.')
@@ -140,9 +137,8 @@ async function comprobarContrasena(email, contrasena) {
 		console.log('La contraseña es incorrecta')
 		return 2
 	}
-	else {
-		//Todo correcto
-		console.log('clase: ' + result[0].clase)
-		return result[0].clase
-	}
+
+	//Si llego hasta aqui, todo correcto. Devuelvo el resultado de la query
+	console.log('clase: ' + result[0].clase)
+	return result[0] //El objeto json de la query que hay dentro del array.
 }

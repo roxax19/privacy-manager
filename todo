@@ -15,7 +15,10 @@ Mejora de las políticas de privacidad
 Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
-			Implementar control de horario
+			Implementar control de peticiones realizadas
+				Cambiamos el modulo de auth para que en el jwt este también el id de usuario con el que llevaremos la cuenta de los intentos.
+					Hay que hacer las funciones para actualiar los contadores y anotar si ha sobrepasado el maximo.
+					
 				
 				
 

@@ -93,18 +93,23 @@ var politics = {}
 var politicsAsRead = {}
 updateRules()
 
+/* ===================================== Conteo de peticiones ===================================== */
+
+// Almacena json tipo {id, count}
+var requestsCount = []
+
 /* ===================================== GET ===================================== */
 
 app.get('/', async function(req, res) {
-	//console.log('Priv: ' + JSON.stringify(req.query));
-
-	//HAY QUE CAMBIAR EL PARÁMETRO TIPO DATO A QUERY STRING --> EN TODOS LOS MODULOS
-
-	//TENEMOS PENDIENTE CONTROLAR EL ACCESO? QUE SE DEVUELVE EN CASO DE QUE NO TENGA PERMISO? ME VALE DEVOLVER NADA
-
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateRules()
+
+		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
+		await updateRequestsCount(req.query.id)
+		if (reachedMaxRequests(req.query.id)) {
+			res.send('You are not allowed to make more requests')
+		}
 
 		//Despues realizamos las querys a las diferentes vistas que tenga el usuario disponibles
 		var datos = await querysAVistas(req.query.clase, req.query.stringQuery)
@@ -129,7 +134,6 @@ app.post('/', async function(req, res) {
 		await updateRules()
 
 		//Vemos si tenemos permiso para introducir los datos
-		//HABRA QUE CAMBIAR PARA ADAPTARLO A LAS NUEVAS REGLAS
 		var acceso = await tipoAccesoAccion(req.body.clase, 'PUSH')
 
 		if (acceso == 0) {
@@ -156,7 +160,6 @@ app.delete('/', async function(req, res) {
 		await updateRules()
 
 		//Vemos si tenemos permiso para introducir los datos
-		//HABRA QUE CAMBIAR PARA ADAPTARLO A LAS NUEVAS REGLAS
 		var acceso = await tipoAccesoAccion(req.body.clase, 'DELETE')
 
 		if (acceso == 0) {
@@ -383,7 +386,6 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 	 * 
 	 * A la hora de hacer las querys a las vistas, tenemos que controlas los * que representan a todas las columnas,
 	 * tanto en el usuario como las que hay almacenadas en el campo reglas.columnas
-	 * 
 	 */
 
 	//Formato query usuario : SELECT _____ FROM _____ WHERE _____
@@ -622,9 +624,10 @@ async function procesarDatos(datos) {
 	return datosProcesados
 }
 
+/**
+ * Lee las politicas de privacidad. Comprueba si han cambiado, y si es asi las actualiza.
+ */
 async function updateRules() {
-	//Comprobamos si las reglas de privacidad han cambiado, y si es asi las volvemos a leer
-
 	//passsing directoryPath and callback function
 	fs.readdir(privacyRulesPath, async function(err, files) {
 		//handling error
@@ -655,7 +658,7 @@ async function updateRules() {
 					politicsAsRead[fileNoExtension] = JSON.parse(auxPol)
 					politics[fileNoExtension] = JSON.parse(auxPol)
 
-					// y creamos las nuevas views
+					// y creamos las nuevas views (modificamos politics)
 
 					for (var i = 0; i < politics[fileNoExtension].rules.length; i++) {
 						if (politics[fileNoExtension].rules[i].action_type == 'GET') {
@@ -680,4 +683,44 @@ async function updateRules() {
 			}
 		})
 	})
+}
+
+/**
+ * 
+ * @param {*} userId 
+ * Actualiza el contador de peticiones de cada usuario
+ */
+async function updateRequestsCount(userId) {
+	//Buscamos si este usuario ha realiado peticiones anteriormente
+	var index = await requestsCount.findIndex((element) => {
+		element.id == userId
+	})
+
+	if (index == -1) {
+		//Este usuario no ha realizado peticiones antes. Creamos el usuario dentro del array
+		requestsCount.push({ id: userId, count: 1 })
+	}
+	else {
+		//El usuario ya habia realizado peticiones. Actualizamos su contador
+		requestsCount[index].count = requestsCount[index].count + 1
+	}
+}
+
+/**
+ * Comprueba si el numero de intentos realizados por el usuario supera el número máximo permitido
+ */
+async function reachedMaxRequests(userId) {
+	//ESTO VA POR USUARIO Y POR REGLA. TENEMOS QUE ALMACENAR ESO EN EL ARRAY TAMBIEN, HAREMOS UNA DOBLE BUSQUEDA
+	//COMO AL REALIZAR LAS GET, SE REALIZAN TODAS SIEMPRE, PODEMOS MIRAR SOLO UNA Y CONTAR ESA. PONEMOS UNO POR CADA TIPO DE REGLA.
+	//PODEMOS HACERLO INDEPENDIENTE DE SI TIENE PERMISO O NO, Y ASI ES MÁS FACIL. LAS CONTAMOS IGUALMENTE.
+	//TENER EN CUENTA QUE EL CONTADOR MAX DEPENDE SOLO DE LA CLASE, MIENTRAS QUE EL CONTADOC ACTUAL DEPENDE DE CADA USUARIO.
+	//Y QUE LAS REGLAS NO ESTAN ORDENADAS, SINO QUE HABRIA QUE RECORRIENDO UN ARRAY HASTA OBTENER LA PRIMERA REGLA DE CADA TIPO.
+
+	//Buscamos al usuario en el array
+	var index = await requestsCount.findIndex((element) => {
+		element.id == userId
+	})
+
+	//Comprobamos si ha superado el numero de intentos permitidos de su clase
+	//var max = politics[class].rules[]
 }

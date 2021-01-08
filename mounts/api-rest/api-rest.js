@@ -62,7 +62,7 @@ https.createServer(options, app).listen(puerto, () => console.log('Servidor http
 
 /* ===================================== GET ===================================== */
 
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
 	console.log('req.query.token: ' + req.query.token)
 	console.log('req.query.stringQuery: ' + req.query.stringQuery)
 
@@ -73,17 +73,17 @@ app.get('/', function(req, res) {
 	}
 
 	//Obtenemos la clase del token que nos han enviado
-	comprobarToken(req.query.token)
-		.then((clase) => {
-			console.log('Clase: ' + clase)
-			//Enviamos la clase a priv
-			return envioGETPriv(clase, req.query.stringQuery)
-		})
-		.then((dato) => {
-			//Cuando recibimos el dato deseado, lo mostramos por pantalla
-			res.send(dato)
-			return
-		})
+	var resultado = await comprobarToken(req.query.token)
+
+	console.log(JSON.stringify(resultado))
+	console.log('resultado.id: ' + resultado.id, ' resultado.clase: ' + resultado.clase)
+
+	//Enviamos el id de usuario, la clase y la solicitud a priv
+	var dato = await envioGETPriv(resultado.id, resultado.clase, req.query.stringQuery)
+
+	//Cuando recibimos el dato deseado, lo mostramos por pantalla
+	res.send(dato)
+	return
 })
 
 /* ===================================== POST ===================================== */
@@ -150,15 +150,13 @@ app.delete('/', function(req, res) {
 
 /**comprobarToken
  * Devuelve:
- * string clase si todo va bien
+ * json {clase, id} si todo va bien
  * 1 si el token no es valido (hay que implementarlo en auth)
  */
 async function comprobarToken(token) {
 	//Hacemos una petición a auth, y le pasamos el mensaje.
 
 	var respuesta = ''
-	//var auth = 'https://10.152.183.201:8081';
-	//var auth = 'https://auth.default.svc.cluster.local:8081'
 
 	await axios
 		.post(
@@ -177,11 +175,10 @@ async function comprobarToken(token) {
 		.catch(function(error) {
 			console.log(error)
 		})
-
 	return respuesta
 }
 
-async function envioGETPriv(clase, stringQuery) {
+async function envioGETPriv(id, clase, stringQuery) {
 	//Hay que implementar los distintos metodos segun la funcion que este usando.
 	//Por ahora implementamos el GET
 
@@ -189,6 +186,7 @@ async function envioGETPriv(clase, stringQuery) {
 	//var priv = 'https://10.152.183.202:8082';
 	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
+		id          : id,
 		clase       : clase,
 		stringQuery : stringQuery
 	}
