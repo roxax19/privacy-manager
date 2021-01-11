@@ -15,22 +15,22 @@ Mejora de las políticas de privacidad
 Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
-			Implementar control de peticiones realizadas
-				Cambiamos el modulo de auth para que en el jwt este también el id de usuario con el que llevaremos la cuenta de los intentos.
-					Hay que hacer las funciones para actualiar los contadores y anotar si ha sobrepasado el maximo.
-					
-				
-				
-
+			Configurar para que solo se puedan hacer las querys en el horario determinado.
+			Cambiar el rol de nombre del archivo a campo dentro del json?					
 
 -----DONE:
 
+Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema
-			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos
+			Empezamos por action_type y privacy_method, que es mas o menos la funcionalidad que tenemos			
 			Despues cambiamos para que la query se coja desde resource y filter. Para ello vamos a implementar unas VIEWS de SQL
 				Creamos las views al inicio y vamos modificando conforme se modifiquen las reglas
-			Evitar SQL injection
+				
+			Evitar SQL injection			
+			Implementar control de numero de peticiones realizadas
+				Cambiamos el modulo de auth para que en el jwt este también el id de usuario con el que llevaremos la cuenta de los intentos.
+					Hay que hacer las funciones para actualiar los contadores y anotar si ha sobrepasado el maximo.
 				
 
 Añadir conexión con distintas plataformas de IoT.

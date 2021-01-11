@@ -106,9 +106,10 @@ app.get('/', async function(req, res) {
 		await updateRules()
 
 		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
-		await updateRequestsCount(req.query.id)
-		if (reachedMaxRequests(req.query.id)) {
+		await updateRequestsCount(req.query.id, 'GET')
+		if (await reachedMaxRequests(req.query.id, 'GET', req.query.clase)) {
 			res.send('You are not allowed to make more requests')
+			return 0
 		}
 
 		//Despues realizamos las querys a las diferentes vistas que tenga el usuario disponibles
@@ -132,6 +133,13 @@ app.post('/', async function(req, res) {
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateRules()
+
+		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
+		await updateRequestsCount(req.query.id, 'PUSH')
+		if (await reachedMaxRequests(req.query.id, 'PUSH', req.query.clase)) {
+			res.send('You are not allowed to make more requests')
+			return 0
+		}
 
 		//Vemos si tenemos permiso para introducir los datos
 		var acceso = await tipoAccesoAccion(req.body.clase, 'PUSH')
@@ -158,6 +166,13 @@ app.delete('/', async function(req, res) {
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateRules()
+
+		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
+		await updateRequestsCount(req.query.id, 'DELETE')
+		if (await reachedMaxRequests(req.query.id, 'DELETE', req.query.clase)) {
+			res.send('You are not allowed to make more requests')
+			return 0
+		}
 
 		//Vemos si tenemos permiso para introducir los datos
 		var acceso = await tipoAccesoAccion(req.body.clase, 'DELETE')
@@ -689,27 +704,28 @@ async function updateRules() {
  * 
  * @param {*} userId 
  * Actualiza el contador de peticiones de cada usuario
+ * El contador tiene formato {id:userID, count:{get:0, push:0, delete:0}}
  */
-async function updateRequestsCount(userId) {
+async function updateRequestsCount(userId, method) {
 	//Buscamos si este usuario ha realiado peticiones anteriormente
 	var index = await requestsCount.findIndex((element) => {
-		element.id == userId
+		return element.id == userId
 	})
 
 	if (index == -1) {
 		//Este usuario no ha realizado peticiones antes. Creamos el usuario dentro del array
-		requestsCount.push({ id: userId, count: 1 })
+		requestsCount.push({ id: userId, count: { GET: 0, PUSH: 0, DELETE: 0, GETRST: 0, PUSHRST: 0, DELETERST: 0 } })
 	}
 	else {
 		//El usuario ya habia realizado peticiones. Actualizamos su contador
-		requestsCount[index].count = requestsCount[index].count + 1
+		requestsCount[index].count[method]++
 	}
 }
 
 /**
  * Comprueba si el numero de intentos realizados por el usuario supera el número máximo permitido
  */
-async function reachedMaxRequests(userId) {
+async function reachedMaxRequests(userId, method, clase) {
 	//ESTO VA POR USUARIO Y POR REGLA. TENEMOS QUE ALMACENAR ESO EN EL ARRAY TAMBIEN, HAREMOS UNA DOBLE BUSQUEDA
 	//COMO AL REALIZAR LAS GET, SE REALIZAN TODAS SIEMPRE, PODEMOS MIRAR SOLO UNA Y CONTAR ESA. PONEMOS UNO POR CADA TIPO DE REGLA.
 	//PODEMOS HACERLO INDEPENDIENTE DE SI TIENE PERMISO O NO, Y ASI ES MÁS FACIL. LAS CONTAMOS IGUALMENTE.
@@ -717,10 +733,41 @@ async function reachedMaxRequests(userId) {
 	//Y QUE LAS REGLAS NO ESTAN ORDENADAS, SINO QUE HABRIA QUE RECORRIENDO UN ARRAY HASTA OBTENER LA PRIMERA REGLA DE CADA TIPO.
 
 	//Buscamos al usuario en el array
+	//console.log('element.id: ' + element.id)
 	var index = await requestsCount.findIndex((element) => {
-		element.id == userId
+		return element.id == userId
 	})
 
-	//Comprobamos si ha superado el numero de intentos permitidos de su clase
-	//var max = politics[class].rules[]
+	//Comprobamos si ha superado el numero de intentos permitidos de su clase y su regla
+	//var max = politics[clase].rules[]
+
+	for (var i = 0; i < politics[clase].rules.length; i++) {
+		if (politics[clase].rules[i].action_type == method) {
+			console.log('max en politicas: ' + politics[clase].rules[i].conditions[0].requester.max_requests)
+			console.log('contador: ' + requestsCount[index].count[method])
+
+			if (politics[clase].rules[i].conditions[0].requester.max_requests >= requestsCount[index].count[method]) {
+				return false
+			}
+			else {
+				if (requestsCount[index].count[method + 'RST'] == 0) {
+					//Logica para resetear el contador
+					requestsCount[index].count[method + 'RST'] = 1
+					setTimeout(resetCount, 10000, index, method)
+				}
+				return true
+			}
+		}
+	}
+
+	return -1
+}
+
+async function resetCount(index, method) {
+	//Reiniciamos el contador especifico que nos han pasado
+	console.log('index: ' + index + ' method: ' + method)
+	console.log(requestsCount)
+	requestsCount[index].count[method] = 0
+	requestsCount[index].count[method + 'RST'] = 0
+	console.log(requestsCount)
 }

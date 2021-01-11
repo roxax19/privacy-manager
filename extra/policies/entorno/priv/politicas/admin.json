@@ -4,7 +4,14 @@
 		{
 			"action_type":"GET",			
 			"privacy_method":"Exact",
-			"resource": "SELECT nombre, edad FROM personas"
+			"resource": "SELECT nombre, edad FROM personas",
+			"conditions":[
+				{
+					"requester":{
+						"max_requests":4
+					}
+				}
+			]
 		},
 		{
 			"action_type":"GET",			
