@@ -80,7 +80,8 @@
                   "description": "Conditions for context",
                   "properties": {
                     "timeofday": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Format: HH:MM - HH:MM, HH:MM - HH:MM, ... Meaning: time when requests can be done. "
                     },
                     "data_type": {
                       "description": "Can be any value - string, number, boolean, array or object"

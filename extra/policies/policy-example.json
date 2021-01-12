@@ -42,7 +42,7 @@
       "conditions": [
         {
           "context": {
-            "timeofday": ">0:00 and <8:00",
+            "timeofday": "0:00 - 8:00",
             "granularity": "size>1M",
             "data_location": ["edge","cloud"]
           }
