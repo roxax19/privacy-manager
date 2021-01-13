@@ -16,10 +16,7 @@ Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema			
 			Cambiar el rol de nombre del archivo a campo dentro del json?
-				Podria cambiar solo la forma de lecutra, y dejar el esquema que tengo dentro ahora mismo
-					VENTAJAS: cambiar mucho menos codigo
-					DESVENTAJAS: cada vez que se realiza una query, se comprueba si se han modificado o no, y seria mas costoso
-						no tiene que ser mas costoso si guardamos en una variable una copia de la lectura tal cual
+				Se va a crear ademas un grupo "all" de reglas que afecta a todas las clases
 			
 -----DONE:
 
