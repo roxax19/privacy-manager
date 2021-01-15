@@ -676,6 +676,7 @@ async function updateRules() {
 	// 		}
 	// 	})
 	// })
+	console.log('Control 1')
 
 	var hasChanged = false
 
@@ -690,6 +691,8 @@ async function updateRules() {
 		files.forEach(async function(file) {
 			// File es el nombre del archivo. leemos todos los "politics*.json"
 
+			console.log('Control 2')
+
 			if (/^(politics)[0-9]*\.json$/.test(file)) {
 				var fileNoExtension = file.slice(0, file.length - 5)
 
@@ -700,46 +703,78 @@ async function updateRules() {
 
 				if (JSON.stringify(politicsAsRead[fileNoExtension]) == JSON.stringify(JSON.parse(auxPol))) {
 					//Si es igual, no tenemos que actualizar nada
+					console.log('Control 3')
+					console.log(JSON.stringify(politics))
 				}
 				else {
 					//Si ha cambiado, guardamos el nuevo archivo y activamos un flag
 					politicsAsRead[fileNoExtension] = JSON.parse(auxPol)
 					hasChanged = true
+					console.log('Control 4')
+					console.log(JSON.stringify(politics))
 				}
 			}
 		})
 	})
 
+	console.log('hasChanged: ' + hasChanged)
+
 	//Si ha habido cambios, tenemos que volver a crear politics
 	if (hasChanged) {
+		console.log('Control 5')
 		//Primero creamos politics con todos los roles que hay
-		createPoliticsRoles()
+		await createPoliticsRoles()
 
 		//Despues tenemos que añadir las reglas nuevas a politics
-		addRulesToPoliticsObject()
+		await addRulesToPoliticsObject()
+
+		console.log(JSON.stringify(politics))
 	}
 }
 
-//SI NO TIENE ROL, SE APLICA AL RESTO DE CLASES DEFINIDAS
-//A LO MEJOR HAY QUE CREAR EL GRUPO ALL DENTRO DE POLITICS Y QUE SE COMPRUEBE PARA CUALQUIER CLASE
-//ESTAS SERIAN LAS REGLAS GLOBALES
-
-//HACER OTRA FUNCION QUE SE ENCARGUE DE INICIALIZAR TODAS LAS CLASES
-//COMO SOLO SE EJECUTARA CUANDO CAMBIEN LAS REGLAS, NO DEBERIA SER MUY COSTOSO PARA EL SISTEMA.
-
+/**
+ * Inicializa el objeto politics con todos los roles que existan en las reglas, mas uno de caracter general (all)
+ */
 async function createPoliticsRoles() {
+	//Primero creo unas reglas generales
+	politics.all = { rules: [] }
+
 	//Busco todos los roles que hay en las reglas, y los añado a politics
 	for (var i = 0; i < politicsAsRead.length; i++) {
 		for (var j = 0; j < politicsAsRead[i].rules.length; j++) {
-			//compruebo poco a poco si tienen rol, y si es asi lo añado
+			//compruebo poco a poco si tienen rol, y si es asi lo añado a politics
+			if (politicsAsRead[i].rules[j].conditions !== undefined) {
+				for (var k = 0; k < politicsAsRead[i].rules[j].conditions.length; k++) {
+					if (politicsAsRead[i].rules[j].conditions[k].requester !== undefined) {
+						if (politicsAsRead[i].rules[j].conditions[k].requester.role !== undefined) {
+							//Existe rol, lo añadimos a politics
+							var role = politicsAsRead[i].rules[j].conditions[k].requester.role
+							politics[role] = { rules: [] }
+						}
+					}
+				}
+			}
 		}
 	}
 }
 
+/**Anade las reglas al objeto politics */
 async function addRulesToPoliticsObject() {
 	//Bucle a traves de todas las reglas y las asino a politics con la clase que le pertenece
+	for (var i = 0; i < politicsAsRead.length; i++) {
+		for (var j = 0; j < politicsAsRead[i].rules.length; j++) {
+			addOneRuleToPoliticsObjects(politicsAsRead[i].rule[j])
+		}
+	}
 }
 
+/**
+ * 
+ * @param {Object} rule 
+ * 
+ * Anade una regla al objeto politics segun los roles a los que afecta.
+ * Si no afecta a ningun rol, se anade a "all"
+ */
 async function addOneRuleToPoliticsObjects(rule) {
 	//Compruebo que la regla tiene una clase asociada
 	var haveRole = false
@@ -761,7 +796,8 @@ async function addOneRuleToPoliticsObjects(rule) {
 
 	//Si se han leido las reglas y no tienen rol
 	if (!haveRole) {
-		//Añadimos la regla a todas las clases
+		//Añadimos la regla a la clase general
+		politics.all.rules.push(rule)
 	}
 }
 
