@@ -17,6 +17,7 @@ Mejora de las políticas de privacidad
 		Reprogramar el nuevo esquema			
 			Cambiar el rol de nombre del archivo a campo dentro del json?
 				Se va a crear ademas un grupo "all" de reglas que afecta a todas las clases
+					Queda pendiente comprobar este grupo tambien cada vez que se realiza una peticion al servidor. Estoy probando el DELETE
 			
 -----DONE:
 

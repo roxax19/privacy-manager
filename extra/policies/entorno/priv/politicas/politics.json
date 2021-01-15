@@ -76,21 +76,7 @@
 			]
 		},
 		{
-            "action_type":"DELETE",
-            "conditions":[
-				{
-                    "requester":{
-                        "role":"admin"
-                    }
-
-                },
-                {
-                    "requester":{
-                        "role":"clase2"
-                    }
-
-				}
-			]
+            "action_type":"DELETE"
 		}
 	]
 }

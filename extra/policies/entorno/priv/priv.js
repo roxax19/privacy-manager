@@ -453,6 +453,7 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 
 			// ----- COLUMNAS -----
 			//Tenemos que escapar las columnas que vienen del usuario
+			//console.log('456: politics: ' + JSON.stringify(politics))
 			if (politics[claseUsuario].rules[i].viewColumns[0] == '*') {
 				//Si en las reglas hay un *, dejamos la query del usuario
 
@@ -676,60 +677,51 @@ async function updateRules() {
 	// 		}
 	// 	})
 	// })
-	console.log('Control 1')
-
 	var hasChanged = false
 
 	//passsing directoryPath and callback function
-	await fs.readdir(privacyRulesPath, async function(err, files) {
-		//handling error
-		if (err) {
-			return console.log('Unable to scan directory: ' + err)
-		}
+
+	try {
+		var files = await fs.readdirSync(privacyRulesPath)
 
 		//listing all files using forEach
-		files.forEach(async function(file) {
-			// File es el nombre del archivo. leemos todos los "politics*.json"
+		for (var i = 0; i < files.length; i++) {
+			// files[i] es el nombre del archivo. leemos todos los "politics*.json"
 
-			console.log('Control 2')
-
-			if (/^(politics)[0-9]*\.json$/.test(file)) {
-				var fileNoExtension = file.slice(0, file.length - 5)
+			if (/^(politics)[0-9]*\.json$/.test(files[i])) {
+				var fileNoExtension = files[i].slice(0, files[i].length - 5)
 
 				//Leemos el archivo
-				var auxPol = fs.readFileSync(path.join(privacyRulesPath, file))
+				var auxPol = fs.readFileSync(path.join(privacyRulesPath, files[i]))
 
 				//Y comparamos con lo que ya hay guardado
 
 				if (JSON.stringify(politicsAsRead[fileNoExtension]) == JSON.stringify(JSON.parse(auxPol))) {
 					//Si es igual, no tenemos que actualizar nada
-					console.log('Control 3')
-					console.log(JSON.stringify(politics))
 				}
 				else {
 					//Si ha cambiado, guardamos el nuevo archivo y activamos un flag
 					politicsAsRead[fileNoExtension] = JSON.parse(auxPol)
 					hasChanged = true
-					console.log('Control 4')
-					console.log(JSON.stringify(politics))
 				}
 			}
-		})
-	})
 
-	console.log('hasChanged: ' + hasChanged)
+			if (hasChanged) {
+				await restartPolitics()
+			}
+		}
+	} catch (error) {}
+}
 
-	//Si ha habido cambios, tenemos que volver a crear politics
-	if (hasChanged) {
-		console.log('Control 5')
-		//Primero creamos politics con todos los roles que hay
-		await createPoliticsRoles()
+async function restartPolitics() {
+	//Primero creamos politics con todos los roles que hay
+	await createPoliticsRoles()
 
-		//Despues tenemos que añadir las reglas nuevas a politics
-		await addRulesToPoliticsObject()
+	//Despues tenemos que añadir las reglas nuevas a politics
+	await addRulesToPoliticsObject()
 
-		console.log(JSON.stringify(politics))
-	}
+	//Creamos las views
+	await createViews()
 }
 
 /**
@@ -740,7 +732,7 @@ async function createPoliticsRoles() {
 	politics.all = { rules: [] }
 
 	//Busco todos los roles que hay en las reglas, y los añado a politics
-	for (var i = 0; i < politicsAsRead.length; i++) {
+	for (var i in politicsAsRead) {
 		for (var j = 0; j < politicsAsRead[i].rules.length; j++) {
 			//compruebo poco a poco si tienen rol, y si es asi lo añado a politics
 			if (politicsAsRead[i].rules[j].conditions !== undefined) {
@@ -761,9 +753,9 @@ async function createPoliticsRoles() {
 /**Anade las reglas al objeto politics */
 async function addRulesToPoliticsObject() {
 	//Bucle a traves de todas las reglas y las asino a politics con la clase que le pertenece
-	for (var i = 0; i < politicsAsRead.length; i++) {
+	for (var i in politicsAsRead) {
 		for (var j = 0; j < politicsAsRead[i].rules.length; j++) {
-			addOneRuleToPoliticsObjects(politicsAsRead[i].rule[j])
+			await addOneRuleToPoliticsObjects(politicsAsRead[i].rules[j])
 		}
 	}
 }
@@ -780,7 +772,7 @@ async function addOneRuleToPoliticsObjects(rule) {
 	var haveRole = false
 
 	if (rule.conditions !== undefined) {
-		for (var i = 0; i < conditions.length; i++) {
+		for (var i = 0; i < rule.conditions.length; i++) {
 			if (rule.conditions[i].requester !== undefined) {
 				if (rule.conditions[i].requester.role !== undefined) {
 					//Si hay un rol, tengo que añadir la regla politics dentro de ese rol
@@ -788,7 +780,9 @@ async function addOneRuleToPoliticsObjects(rule) {
 					var role = rule.conditions[i].requester.role
 
 					//Una vez creado, lo añadimos
-					politics[role].rules.push(rule)
+					//Utilizamos parse/stringify para introducir una copia, y no un puntero.
+					//Asi politicsAsRead no se modifica, y se utiliza para comparar cambios
+					politics[role].rules.push(JSON.parse(JSON.stringify(rule)))
 				}
 			}
 		}
@@ -798,6 +792,27 @@ async function addOneRuleToPoliticsObjects(rule) {
 	if (!haveRole) {
 		//Añadimos la regla a la clase general
 		politics.all.rules.push(rule)
+	}
+}
+
+async function createViews() {
+	//Creamos las views para todo el objeto politics
+	for (var clase in politics) {
+		for (var j = 0; j < politics[clase].rules.length; j++) {
+			if (politics[clase].rules[j].action_type == 'GET') {
+				//En rule.viewName almacenamos el nombre de la vista, y en rule.columns las columnas que contiene la vista
+				//Si en las reglas hay un *, no tenemos que crear una view, puede acceder a toda la tabla
+				politics[clase].rules[j].viewColumns = await obtainViewColumns(politics[clase].rules[j].resource)
+
+				if (politics[clase].rules[j].viewColumns[0] == '*') {
+					politics[clase].rules[j].viewName = 'personas'
+				}
+				else {
+					var viewName = await createViewFromViewColumns(politics[clase].rules[j], clase, j)
+					politics[clase].rules[j].viewName = viewName
+				}
+			}
+		}
 	}
 }
 
