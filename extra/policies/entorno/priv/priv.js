@@ -76,6 +76,11 @@ const puerto = 8082
 //app.listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto));
 https.createServer(options, app).listen(puerto, () => console.log('Servidor escuchando en puerto ' + puerto))
 
+/* ===================================== Lectura configuracion ===================================== */
+const configPath = path.join(__dirname, 'politicas')
+var config = {}
+//updateConfig()
+
 /* ===================================== Lectura reglas privacidad ===================================== */
 
 /**
@@ -91,7 +96,7 @@ https.createServer(options, app).listen(puerto, () => console.log('Servidor escu
 const privacyRulesPath = path.join(__dirname, 'politicas')
 var politics = {} // Formato: politics[role].rules[i]
 var politicsAsRead = {}
-updateRules()
+//updateRules()
 
 /* ===================================== Conteo de peticiones ===================================== */
 
@@ -103,6 +108,7 @@ var requestsCount = []
 app.get('/', async function(req, res) {
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
+		await updateConfig()
 		await updateRules()
 
 		//Comprobamos que no se ha superado el limite de consultas
@@ -619,6 +625,28 @@ async function procesarDatos(datos) {
 	return datosProcesados
 }
 
+async function updateConfig() {
+	console.log('control 1')
+	try {
+		var files = await fs.readdirSync(privacyRulesPath)
+
+		//listing all files using forEach
+		for (var i = 0; i < files.length; i++) {
+			// files[i] es el nombre del archivo. leemos todos los "politics*.json"
+
+			if (/^(config\.json)$/.test(files[i])) {
+				//Leemos el archivo
+				var auxJSON = fs.readFileSync(path.join(privacyRulesPath, files[i]))
+
+				//Almacenamos en config los roles existentes
+				config = JSON.parse(auxJSON)
+
+				console.log('control 2' + JSON.stringify(config))
+			}
+		}
+	} catch (error) {}
+}
+
 /**
  * Lee las politicas de privacidad. Comprueba si han cambiado, y si es asi las actualiza.
  */
@@ -728,25 +756,10 @@ async function restartPolitics() {
  * Inicializa el objeto politics con todos los roles que existan en las reglas, mas uno de caracter general (all)
  */
 async function createPoliticsRoles() {
-	//Primero creo unas reglas generales
-	politics.all = { rules: [] }
+	//Inicializo el objeto con los roles que hay en config
 
-	//Busco todos los roles que hay en las reglas, y los añado a politics
-	for (var i in politicsAsRead) {
-		for (var j = 0; j < politicsAsRead[i].rules.length; j++) {
-			//compruebo poco a poco si tienen rol, y si es asi lo añado a politics
-			if (politicsAsRead[i].rules[j].conditions !== undefined) {
-				for (var k = 0; k < politicsAsRead[i].rules[j].conditions.length; k++) {
-					if (politicsAsRead[i].rules[j].conditions[k].requester !== undefined) {
-						if (politicsAsRead[i].rules[j].conditions[k].requester.role !== undefined) {
-							//Existe rol, lo añadimos a politics
-							var role = politicsAsRead[i].rules[j].conditions[k].requester.role
-							politics[role] = { rules: [] }
-						}
-					}
-				}
-			}
-		}
+	for (var i = 0; i < config.roles.length; i++) {
+		politics[config.roles[i]] = { rules: [] }
 	}
 }
 

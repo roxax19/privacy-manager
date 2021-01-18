@@ -16,8 +16,9 @@ Mejora de las políticas de privacidad
 	Crear entorno de pruebas fuera del cluster
 		Reprogramar el nuevo esquema			
 			Cambiar el rol de nombre del archivo a campo dentro del json?
-				Se va a crear ademas un grupo "all" de reglas que afecta a todas las clases
-					Queda pendiente comprobar este grupo tambien cada vez que se realiza una peticion al servidor. Estoy probando el DELETE
+				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
+				PENDIENTE: Ahora mismo si no se encuentra un rol en las reglas se sigue añadiendo a all. Esta pendiente de cambio.
+					
 			
 -----DONE:
 
