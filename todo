@@ -17,7 +17,7 @@ Mejora de las políticas de privacidad
 		Reprogramar el nuevo esquema			
 			Cambiar el rol de nombre del archivo a campo dentro del json?
 				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
-				PENDIENTE: Ahora mismo si no se encuentra un rol en las reglas se sigue añadiendo a all. Esta pendiente de cambio.
+				PENDIENTE: cambiar la restriccion del numero de peticiones y del horario de la query
 					
 			
 -----DONE:

@@ -781,7 +781,7 @@ async function addRulesToPoliticsObject() {
  * Si no afecta a ningun rol, se anade a "all"
  */
 async function addOneRuleToPoliticsObjects(rule) {
-	//Compruebo que la regla tiene una clase asociada
+	//Compruebo si la regla tiene un rol asociado
 	var haveRole = false
 
 	if (rule.conditions !== undefined) {
@@ -803,9 +803,13 @@ async function addOneRuleToPoliticsObjects(rule) {
 
 	//Si se han leido las reglas y no tienen rol
 	if (!haveRole) {
-		//Añadimos la regla a la clase general
-		politics.all.rules.push(rule)
+		//Añadimos la regla a todos los roles
+		for (var role in politics) {
+			politics[role].rules.push(rule)
+		}
 	}
+
+	console.log('politics: ' + JSON.stringify(politics))
 }
 
 async function createViews() {
@@ -893,6 +897,14 @@ async function reachedMaxRequests(userId, method, clase) {
 	})
 
 	//Comprobamos si ha superado el numero de intentos permitidos de su clase y su regla
+	//AQUI SE SUPONIA QUE SOLO IBA A HABER UNA CLASE POR REGLA, POR ESO CONDITIONS[0] HAY QUE ARREGLAR.
+	//Hay que tener en cuenta que ahora puede haber reglas get con diferente numero.
+	//Se aplicara la politica más restrictiva
+
+	//Habria que comprobar también lo del horario. Ver si hacemos por más restrictivo o que
+
+	//habria que hacer: de todas las reglas de la clase que coincidan con el metodo,
+	//comprobar si tiene rol o no, y de las que tengan su rol o no tengan rol ninguno, coger la más restrictiva
 
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
