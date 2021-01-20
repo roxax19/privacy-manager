@@ -746,6 +746,7 @@ async function restartPolitics() {
 	await createPoliticsRoles()
 
 	//Despues tenemos que añadir las reglas nuevas a politics
+	console.log('Control 3')
 	await addRulesToPoliticsObject()
 
 	//Creamos las views
@@ -795,7 +796,12 @@ async function addOneRuleToPoliticsObjects(rule) {
 					//Una vez creado, lo añadimos
 					//Utilizamos parse/stringify para introducir una copia, y no un puntero.
 					//Asi politicsAsRead no se modifica, y se utiliza para comparar cambios
-					politics[role].rules.push(JSON.parse(JSON.stringify(rule)))
+
+					//Deberia crear una copia de la regla eliminando los otros roles, para facilitar tareas despues
+					var auxRule = JSON.parse(JSON.stringify(rule))
+					//Almacenamos solo la condicion en la que estamos
+					auxRule.conditions = [ rule.conditions[i] ]
+					politics[role].rules.push(JSON.parse(JSON.stringify(auxRule)))
 				}
 			}
 		}
@@ -871,6 +877,8 @@ async function reachedMaxRequests(userId, method, clase) {
 
 	//Primero comprobamos si el paramtero esta definido en alguna regla o no
 	//Tenemos que hacer una cadena de comprobaciones para que no de error
+
+	//Podemos dejar conditions[0] porque al crear politics nos hemos asegurado de que solo tendra una conditions, la de su clase o la generals
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
 			if (politics[clase].rules[i].conditions !== undefined) {

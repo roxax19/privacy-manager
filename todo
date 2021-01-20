@@ -18,6 +18,8 @@ Mejora de las políticas de privacidad
 			Cambiar el rol de nombre del archivo a campo dentro del json?
 				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
 				PENDIENTE: cambiar la restriccion del numero de peticiones y del horario de la query
+					Se ha limitado las conditions dentro del objeto policies a solo uno, debería bastar con eso. Comprobar mañana
+				
 					
 			
 -----DONE:

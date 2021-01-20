@@ -14,6 +14,15 @@
 					"context": {
 						"timeofday": "00:00 - 13:00"
 					}
+				},
+				{
+					"requester": {
+						"role": "clase2",
+						"max_requests": "10"
+					},
+					"context": {
+						"timeofday": "12:00 - 13:00"
+					}
 				}
 			]
 		},
@@ -25,30 +34,6 @@
 				{
 					"requester": {
 						"role": "admin"
-					}
-				}
-			]
-		},
-		{
-			"action_type": "GET",
-			"privacy_method": "Exact",
-			"resource": "SELECT nombre, sueldo, lat, lon FROM personas",
-			"conditions": [
-				{
-					"requester": {
-						"role": "clase2"
-					}
-				}
-			]
-		},
-		{
-			"action_type": "GET",
-			"privacy_method": "MedNoise",
-			"resource": "SELECT edad, profesion FROM personas",
-			"conditions": [
-				{
-					"requester": {
-						"role": "clase2"
 					}
 				}
 			]
