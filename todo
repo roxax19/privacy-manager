@@ -6,22 +6,12 @@ Añadir conexión con distintas plataformas de IoT.
 	Implementar la APi para Fiware --> nodeRed
 		Mejorar tratamiento de datos ya subidos. Necesitas establecer un buen sistema de ids
 	
-	Que es knowage? Parece extraer y exponer gráficamente los datos del orion broker
-	
-Mejora de las políticas de privacidad
-
 ---- Doing:
 
-Mejora de las políticas de privacidad
-	Crear entorno de pruebas fuera del cluster
-		Reprogramar el nuevo esquema			
-			Cambiar el rol de nombre del archivo a campo dentro del json?
-				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
-				PENDIENTE: cambiar la restriccion del numero de peticiones y del horario de la query
-					Se ha limitado las conditions dentro del objeto policies a solo uno, debería bastar con eso. Comprobar mañana
-				
-					
-			
+Prueba de funcionamiento de politicas de privacidad	
+	max_requests funciona bien
+	timeofday pendiente: quiero hacer que si alguna regla permite el horario, se pueda hacer
+		
 -----DONE:
 
 Mejora de las políticas de privacidad
@@ -37,7 +27,9 @@ Mejora de las políticas de privacidad
 					Hay que hacer las funciones para actualiar los contadores y anotar si ha sobrepasado el maximo.
 					
 			Configurar para que solo se puedan hacer las querys en el horario determinado.			
-			Arreglar parametros opcionales, algunos no son obligatorios. Para ello, comprobar si estan definidos dentro del js
+			Arreglar parametros opcionales, algunos no son obligatorios. Para ello, comprobar si estan definidos dentro del js		
+			Cambiar el rol de nombre del archivo a campo dentro del json
+				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
 				
 
 Añadir conexión con distintas plataformas de IoT.

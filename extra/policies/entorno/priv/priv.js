@@ -626,7 +626,6 @@ async function procesarDatos(datos) {
 }
 
 async function updateConfig() {
-	console.log('control 1')
 	try {
 		var files = await fs.readdirSync(privacyRulesPath)
 
@@ -640,8 +639,6 @@ async function updateConfig() {
 
 				//Almacenamos en config los roles existentes
 				config = JSON.parse(auxJSON)
-
-				console.log('control 2' + JSON.stringify(config))
 			}
 		}
 	} catch (error) {}
@@ -746,7 +743,6 @@ async function restartPolitics() {
 	await createPoliticsRoles()
 
 	//Despues tenemos que añadir las reglas nuevas a politics
-	console.log('Control 3')
 	await addRulesToPoliticsObject()
 
 	//Creamos las views
@@ -861,6 +857,8 @@ async function updateRequestsCount(userId, method) {
 		//El usuario ya habia realizado peticiones. Actualizamos su contador
 		requestsCount[index].count[method]++
 	}
+
+	console.log(JSON.stringify(requestsCount))
 }
 
 /**
@@ -878,7 +876,7 @@ async function reachedMaxRequests(userId, method, clase) {
 	//Primero comprobamos si el paramtero esta definido en alguna regla o no
 	//Tenemos que hacer una cadena de comprobaciones para que no de error
 
-	//Podemos dejar conditions[0] porque al crear politics nos hemos asegurado de que solo tendra una conditions, la de su clase o la generals
+	//Podemos dejar conditions[0] porque al crear politics nos hemos asegurado de que solo tendra una conditions, la de su clase o la general
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
 			if (politics[clase].rules[i].conditions !== undefined) {
@@ -914,23 +912,41 @@ async function reachedMaxRequests(userId, method, clase) {
 	//habria que hacer: de todas las reglas de la clase que coincidan con el metodo,
 	//comprobar si tiene rol o no, y de las que tengan su rol o no tengan rol ninguno, coger la más restrictiva
 
+	var max
+
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
-			if (politics[clase].rules[i].conditions[0].requester.max_requests >= requestsCount[index].count[method]) {
-				return false
-			}
-			else {
-				if (requestsCount[index].count[method + 'RST'] == 0) {
-					//Logica para resetear el contador
-					requestsCount[index].count[method + 'RST'] = 1
-					setTimeout(resetCount, 10000, index, method)
+			//Buscamos la mas restrictiva
+
+			if (politics[clase].rules[i].conditions !== undefined) {
+				if (politics[clase].rules[i].conditions[0] !== undefined) {
+					if (politics[clase].rules[i].conditions[0].requester !== undefined) {
+						if (politics[clase].rules[i].conditions[0].requester.max_requests !== undefined) {
+							//Si todo existe en esta regla, comprobamos
+
+							if (parseFloat(max) > parseFloat(politics[clase].rules[i].conditions[0].requester.max_requests) || max == undefined) {
+								max = politics[clase].rules[i].conditions[0].requester.max_requests
+							}
+						}
+					}
 				}
-				return true
 			}
 		}
 	}
 
-	return -1
+	//Una vez que tenemos el menor, comprobamos
+
+	if (max >= requestsCount[index].count[method]) {
+		return false
+	}
+	else {
+		if (requestsCount[index].count[method + 'RST'] == 0) {
+			//Logica para resetear el contador
+			requestsCount[index].count[method + 'RST'] = 1
+			setTimeout(resetCount, 10000, index, method)
+		}
+		return true
+	}
 }
 
 /**

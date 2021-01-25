@@ -8,11 +8,7 @@
 			"conditions": [
 				{
 					"requester": {
-						"role": "admin",
-						"max_requests": "20"
-					},
-					"context": {
-						"timeofday": "00:00 - 13:00"
+						"role": "admin"
 					}
 				},
 				{
@@ -21,7 +17,7 @@
 						"max_requests": "10"
 					},
 					"context": {
-						"timeofday": "12:00 - 13:00"
+						"timeofday": "11:00 - 12:00"
 					}
 				}
 			]
@@ -33,7 +29,8 @@
 			"conditions": [
 				{
 					"requester": {
-						"role": "admin"
+						"role": "admin",
+						"max_requests": "5"
 					}
 				}
 			]

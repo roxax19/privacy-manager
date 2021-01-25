@@ -2,33 +2,30 @@
 	"id": 0,
 	"rules": [
 		{
-			"action_type":"GET",			
-			"privacy_method":"Exact",
+			"action_type": "GET",
+			"privacy_method": "Exact",
 			"resource": "SELECT nombre, edad FROM personas",
-			"conditions":[
+			"conditions": [
 				{
-					"requester":{
-                        "max_requests":"20"
+					"requester": {
+						"max_requests": "5"
 					},
-					"context":{
-						"timeofday":"00:00 - 14:00"
+					"context": {
+						"timeofday": "00:00 - 14:00"
 					}
-
 				}
 			]
 		},
 		{
-			"action_type":"GET",			
-			"privacy_method":"MaxNoise",
+			"action_type": "GET",
+			"privacy_method": "MaxNoise",
 			"resource": "SELECT profesion, sueldo FROM personas"
 		},
 		{
-			"action_type":"PUSH"
+			"action_type": "PUSH"
 		},
 		{
-			"action_type":"DELETE"
+			"action_type": "DELETE"
 		}
 	]
 }
-
-
