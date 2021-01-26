@@ -106,10 +106,10 @@ app.post('/', function(req, res) {
 
 	//Obtenemos la clase del token que nos han enviado
 	comprobarToken(req.body.token)
-		.then((clase) => {
-			console.log('Clase: ' + clase)
+		.then((resultado) => {
+			console.log('resultado: ' + resultado)
 			//Enviamos la clase a priv junto con los datos
-			return envioPOSTPriv(clase, req.body.datos)
+			return envioPOSTPriv(resultado.clase, resultado.id, req.body.datos)
 		})
 		.then((respuesta) => {
 			//Cuando recibimos la respuesta la enviamos
@@ -134,10 +134,10 @@ app.delete('/', function(req, res) {
 
 	//Obtenemos la clase del token que nos han enviado
 	comprobarToken(req.body.token)
-		.then((clase) => {
-			console.log('Clase: ' + clase)
+		.then((resultado) => {
+			console.log('resultado: ' + resultado)
 			//Enviamos la clase a priv junto con los datos
-			return envioDELETEPriv(clase, req.body.id)
+			return envioDELETEPriv(resultado.clase, resultado.id, req.body.id)
 		})
 		.then((respuesta) => {
 			//Cuando recibimos la respuesta la enviamos
@@ -209,7 +209,7 @@ async function envioGETPriv(id, clase, stringQuery) {
 	return respuesta
 }
 
-async function envioPOSTPriv(clase, datos) {
+async function envioPOSTPriv(clase, id, datos) {
 	//Por ahora implementamos el POST
 
 	var respuesta = ''
@@ -217,6 +217,7 @@ async function envioPOSTPriv(clase, datos) {
 	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var params = {
 		clase : clase,
+		id    : id,
 		datos : datos
 	}
 
@@ -237,15 +238,16 @@ async function envioPOSTPriv(clase, datos) {
 	return respuesta
 }
 
-async function envioDELETEPriv(clase, id) {
+async function envioDELETEPriv(clase, idUser, idToDelete) {
 	//Por ahora implementamos el DELETE
 
 	var respuesta = ''
 	//var priv = 'https://10.152.183.202:8082';
 	//var priv = 'https://priv.default.svc.cluster.local:8082';
 	var data = {
-		clase : clase,
-		id    : id
+		clase      : clase,
+		idUser     : idUser,
+		idToDelete : idToDelete
 	}
 
 	console.log('Params: ' + JSON.stringify(data))

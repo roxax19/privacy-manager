@@ -13,6 +13,7 @@ const Promise = require('bluebird') //Para numeros aleatorios
 const randomNumber = require('random-number-csprng') //Para numeros aleatorios
 const axios = require('axios') // probamos con axios para generar http
 const QueryString = require('qs')
+const { Console } = require('console')
 
 /* ===================================== Configuramos Express ===================================== */
 var app = express()
@@ -106,6 +107,8 @@ var requestsCount = []
 /* ===================================== GET ===================================== */
 
 app.get('/', async function(req, res) {
+	console.log('req.query: ' + JSON.stringify(req.query))
+
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
@@ -139,22 +142,22 @@ app.get('/', async function(req, res) {
 /* ===================================== POST ===================================== */
 
 app.post('/', async function(req, res) {
-	console.log('req.body.clase: ' + req.body.clase)
-	console.log('req.body.datos: ' + req.body.datos)
+	console.log('req.body: ' + JSON.stringify(req.body))
 
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
+		await updateConfig()
 		await updateRules()
 
 		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
-		await updateRequestsCount(req.query.id, 'PUSH')
-		if (await reachedMaxRequests(req.query.id, 'PUSH', req.query.clase)) {
+		await updateRequestsCount(req.body.id, 'PUSH')
+		if (await reachedMaxRequests(req.body.id, 'PUSH', req.body.clase)) {
 			res.send('You are not allowed to make more requests')
 			return 0
 		}
 
 		//Comprobamos que esta dentro del horario permitido
-		if (!await timePeriodAllowed(req.query.clase, 'PUSH')) {
+		if (!await timePeriodAllowed(req.body.clase, 'PUSH')) {
 			res.send('You are not allowed to make requests now')
 			return 0
 		}
@@ -178,22 +181,22 @@ app.post('/', async function(req, res) {
 /* ===================================== DELETE ===================================== */
 
 app.delete('/', async function(req, res) {
-	console.log('req.body.clase: ' + req.body.clase)
-	console.log('req.body.datos: ' + req.body.id)
+	console.log('req.body: ' + JSON.stringify(req.body))
 
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
+		await updateConfig()
 		await updateRules()
 
 		//Ahora comprobamos que el usuario tiene permitido hacer mas requests
-		await updateRequestsCount(req.query.id, 'DELETE')
-		if (await reachedMaxRequests(req.query.id, 'DELETE', req.query.clase)) {
+		await updateRequestsCount(req.body.idUser, 'DELETE')
+		if (await reachedMaxRequests(req.body.idUser, 'DELETE', req.body.clase)) {
 			res.send('You are not allowed to make more requests')
 			return 0
 		}
 
 		//Comprobamos que esta dentro del horario permitido
-		if (!await timePeriodAllowed(req.query.clase, 'DELETE')) {
+		if (!await timePeriodAllowed(req.body.clase, 'DELETE')) {
 			res.send('You are not allowed to make requests now')
 			return 0
 		}
@@ -202,7 +205,7 @@ app.delete('/', async function(req, res) {
 		var acceso = await tipoAccesoAccion(req.body.clase, 'DELETE')
 
 		if (acceso == 0) {
-			var respQuery = await borroDatos(req.body.id)
+			var respQuery = await borroDatos(req.body.idToDelete)
 			console.log(respQuery)
 			res.send(respQuery)
 		}
@@ -857,8 +860,6 @@ async function updateRequestsCount(userId, method) {
 		//El usuario ya habia realizado peticiones. Actualizamos su contador
 		requestsCount[index].count[method]++
 	}
-
-	console.log(JSON.stringify(requestsCount))
 }
 
 /**
@@ -875,6 +876,9 @@ async function reachedMaxRequests(userId, method, clase) {
 
 	//Primero comprobamos si el paramtero esta definido en alguna regla o no
 	//Tenemos que hacer una cadena de comprobaciones para que no de error
+
+	console.log('politics en error: ' + JSON.stringify(politics))
+	console.log('clase en error: ' + clase)
 
 	//Podemos dejar conditions[0] porque al crear politics nos hemos asegurado de que solo tendra una conditions, la de su clase o la general
 	for (var i = 0; i < politics[clase].rules.length; i++) {
@@ -903,14 +907,6 @@ async function reachedMaxRequests(userId, method, clase) {
 	})
 
 	//Comprobamos si ha superado el numero de intentos permitidos de su clase y su regla
-	//AQUI SE SUPONIA QUE SOLO IBA A HABER UNA CLASE POR REGLA, POR ESO CONDITIONS[0] HAY QUE ARREGLAR.
-	//Hay que tener en cuenta que ahora puede haber reglas get con diferente numero.
-	//Se aplicara la politica más restrictiva
-
-	//Habria que comprobar también lo del horario. Ver si hacemos por más restrictivo o que
-
-	//habria que hacer: de todas las reglas de la clase que coincidan con el metodo,
-	//comprobar si tiene rol o no, y de las que tengan su rol o no tengan rol ninguno, coger la más restrictiva
 
 	var max
 
@@ -974,6 +970,8 @@ async function resetCount(index, method) {
 async function timePeriodAllowed(clase, method) {
 	var exists = false
 
+	console.log()
+
 	//Primero comprobamos si el paramtero esta definido en alguna regla o no
 	//Tenemos que hacer una cadena de comprobaciones para que no de error
 	for (var i = 0; i < politics[clase].rules.length; i++) {
@@ -997,25 +995,35 @@ async function timePeriodAllowed(clase, method) {
 	}
 
 	//Comprobamos si la accion que intenta realizar esta dentro del horario permitido
+
+	//Procesamos el tiempo actual
+	var d = new Date()
+	var currentTimeHHMM = d.getHours() + ':' + d.getMinutes()
+
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
-			//Procesamos el tiempo actual
-			var d = new Date()
-			var currentTimeHHMM = d.getHours() + ':' + d.getMinutes()
+			//Comprobamos que existe el parametro
+			if (politics[clase].rules[i].conditions !== undefined) {
+				if (politics[clase].rules[i].conditions[0] !== undefined) {
+					if (politics[clase].rules[i].conditions[0].context !== undefined) {
+						if (politics[clase].rules[i].conditions[0].context.timeofday !== undefined) {
+							//Y procesamos el param timeofday
+							var periodsArray = politics[clase].rules[i].conditions[0].context.timeofday.split(', ')
 
-			//Y procesamos el param timeofday
-			var periodsArray = politics[clase].rules[i].conditions[0].context.timeofday.split(', ')
+							for (var j = 0; j < periodsArray.length; j++) {
+								periodsArray[j] = periodsArray[j].split(' - ')
 
-			for (var i = 0; i < periodsArray.length; i++) {
-				periodsArray[i] = periodsArray[i].split(' - ')
-
-				//Y comparamos los horarios
-				if (currentTimeHHMM > periodsArray[i][0] && currentTimeHHMM < periodsArray[i][1]) {
-					return true
+								//Y comparamos los horarios
+								if (currentTimeHHMM > periodsArray[j][0] && currentTimeHHMM < periodsArray[j][1]) {
+									return true
+								}
+							}
+						}
+					}
 				}
 			}
-
-			return false
 		}
 	}
+
+	return false
 }
