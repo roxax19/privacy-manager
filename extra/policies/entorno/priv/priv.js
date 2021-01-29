@@ -107,8 +107,6 @@ var requestsCount = []
 /* ===================================== GET ===================================== */
 
 app.get('/', async function(req, res) {
-	console.log('req.query: ' + JSON.stringify(req.query))
-
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
@@ -127,6 +125,12 @@ app.get('/', async function(req, res) {
 			return 0
 		}
 
+		//Comprobamos que es una sentencia SQL valida
+		if (!await validSQL(req.query.stringQuery)) {
+			res.send('SQL sentence not valid')
+			return 0
+		}
+
 		//Despues realizamos las querys a las diferentes vistas que tenga el usuario disponibles
 		var datos = await querysAVistas(req.query.clase, req.query.stringQuery)
 
@@ -142,8 +146,6 @@ app.get('/', async function(req, res) {
 /* ===================================== POST ===================================== */
 
 app.post('/', async function(req, res) {
-	console.log('req.body: ' + JSON.stringify(req.body))
-
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
@@ -181,8 +183,6 @@ app.post('/', async function(req, res) {
 /* ===================================== DELETE ===================================== */
 
 app.delete('/', async function(req, res) {
-	console.log('req.body: ' + JSON.stringify(req.body))
-
 	try {
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
@@ -269,21 +269,23 @@ async function introduzcoDatos(datos) {
 
 /**
  * 
- * @param {Number} id 
+ * @param {String} ids 
  * 
- * Elimina la fila con el id determinado por el usuario
+ * Elimina la fila con los ids determinados por el usuario
  * 
  * Devuelve: La respuesta de la base de datos
  */
-async function borroDatos(id) {
+async function borroDatos(ids) {
+	var idsArray = ids.split(', ')
+
 	try {
-		var resultado = await con.query('DELETE FROM personas WHERE id=?', id)
+		var resultado = await con.query('DELETE FROM personas WHERE id IN (?)', [ idsArray ])
 	} catch (err) {
 		console.log(err)
 		console.log(query.sql)
 	}
 
-	console.log('fun query result: ' + resultado)
+	console.log('fun query result: ' + JSON.stringify(resultado))
 	return resultado
 }
 
@@ -462,7 +464,6 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 
 			// ----- COLUMNAS -----
 			//Tenemos que escapar las columnas que vienen del usuario
-			//console.log('456: politics: ' + JSON.stringify(politics))
 			if (politics[claseUsuario].rules[i].viewColumns[0] == '*') {
 				//Si en las reglas hay un *, dejamos la query del usuario
 
@@ -510,25 +511,37 @@ async function querysAVistas(claseUsuario, queryUsuario) {
 			// 	whereString = whereString + queryUsuarioArray[j] + ' '
 			// }
 
-			//Una vez que esta montada la query, la enviamos a la base de datos
+			//Realizamos varias comprobaciones
+			var allow = true
 
-			console.log('querys que se mandan: ' + 'SELECT ' + columnasArray + ' FROM `' + nombreTablaString + '`')
-
-			try {
-				if (columnasArray[0] == '*') {
-					var resultado = await con.query('SELECT * FROM `' + nombreTablaString + '`')
-				}
-				else {
-					var resultado = await con.query('SELECT ?? FROM `' + nombreTablaString + '`', [ columnasArray ])
-				}
-			} catch (err) {
-				console.log(err)
+			//Si en columnas array solo esta id, no enviamos la query
+			if (columnasArray[0] == 'id') {
+				allow = false
 			}
 
-			resultadoFinal.push({
-				privacy_method : politics[claseUsuario].rules[i].privacy_method,
-				datosSQL       : resultado
-			})
+			//Si es generalization y no es *, no enviamos la query
+			if (politics[claseUsuario].rules[i].privacy_method == 'Generalization' && columnasArray[0] != '*') {
+				allow = false
+			}
+			if (allow) {
+				console.log('querys que se mandan: ' + 'SELECT ' + columnasArray + ' FROM `' + nombreTablaString + '`')
+
+				try {
+					if (columnasArray[0] == '*') {
+						var resultado = await con.query('SELECT * FROM ??', nombreTablaString)
+					}
+					else {
+						var resultado = await con.query('SELECT ?? FROM ??', [ columnasArray, nombreTablaString ])
+					}
+				} catch (err) {
+					console.log(err)
+				}
+
+				resultadoFinal.push({
+					privacy_method : politics[claseUsuario].rules[i].privacy_method,
+					datosSQL       : resultado
+				})
+			}
 		}
 	}
 
@@ -628,6 +641,9 @@ async function procesarDatos(datos) {
 	return datosProcesados
 }
 
+/**
+ * Lee las clases que existen del archivo config.json
+ */
 async function updateConfig() {
 	try {
 		var files = await fs.readdirSync(privacyRulesPath)
@@ -741,6 +757,9 @@ async function updateRules() {
 	} catch (error) {}
 }
 
+/**
+ * Crea el objeto politics 
+ */
 async function restartPolitics() {
 	//Primero creamos politics con todos los roles que hay
 	await createPoliticsRoles()
@@ -763,7 +782,9 @@ async function createPoliticsRoles() {
 	}
 }
 
-/**Anade las reglas al objeto politics */
+/**
+ * Añade las reglas al objeto politics
+ */
 async function addRulesToPoliticsObject() {
 	//Bucle a traves de todas las reglas y las asino a politics con la clase que le pertenece
 	for (var i in politicsAsRead) {
@@ -817,6 +838,9 @@ async function addOneRuleToPoliticsObjects(rule) {
 	console.log('politics: ' + JSON.stringify(politics))
 }
 
+/**
+ * Crea las views del objeto politics
+ */
 async function createViews() {
 	//Creamos las views para todo el objeto politics
 	for (var clase in politics) {
@@ -1026,4 +1050,22 @@ async function timePeriodAllowed(clase, method) {
 	}
 
 	return false
+}
+
+/**
+ * 
+ * @param {String} stringSQL 
+ * 
+ * Comprobamos que la query del usuario tiene un formato valido
+ */
+async function validSQL(stringSQL) {
+	//Comprobamos que tenga SELECT como la primera palabra
+
+	var result = false
+
+	if (/^(SELECT)/.test(stringSQL) && /(FROM)/.test(stringSQL)) {
+		result = true
+	}
+
+	return result
 }

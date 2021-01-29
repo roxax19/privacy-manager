@@ -37,7 +37,9 @@ Mejora de las políticas de privacidad
 				En vez de crear el grupo all creamos un config.json en el que vengan definidas todas las clases que hay.
 				
 		Prueba de funcionamiento de politicas de privacidad	
-			max_requests, timeofday y la clase dentro del json parecen funcionar
+			max_requests, timeofday y la clase dentro del json funcionan correctamente
+			Las querys enviadas por el usuario funcionan perfectamente
+			Se ha cambiado el delete: ahora acepta varios ids separados por comas
 				
 
 Añadir conexión con distintas plataformas de IoT.
