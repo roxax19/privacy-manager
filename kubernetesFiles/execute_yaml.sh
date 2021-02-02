@@ -22,3 +22,7 @@ microk8s.kubectl apply -f phpmyadmin/phpmyadmin.yaml
 microk8s.kubectl apply -f phpmyadmin/ingress.yaml
 
 microk8s.kubectl apply -f connector/connector.yaml
+
+microk8s.kubectl apply -f nodeRED/nodered.yaml
+
+microk8s.kubectl apply -f orion-broker/orion.yaml

@@ -196,7 +196,8 @@ def script():
     #Nos conectamos a la base de datos
     #Este no tendría por que conectarse al master porque solo lee datos
     mydb = mysql.connector.connect(
-    host="10.152.183.232", #mysql read
+    #host="10.152.183.232", #mysql read
+    host="mysql-master.default.svc.cluster.local",
     port="3306",
     user="root",
     passwd="",
@@ -298,5 +299,6 @@ class General(Resource):
 api.add_resource(General, '/')
 
 if __name__ == '__main__':
-     #app.run(port='8083', ssl_context=('ssl/gen.pem', 'ssl/key.pem'))
-     app.run(host='0.0.0.0',port='8083', ssl_context=('ssl/gen.pem', 'ssl/key.pem'))
+    #app.run(port='8083', ssl_context=('ssl/gen.pem', 'ssl/key.pem'))
+    #app.run(host='0.0.0.0',port='8083', ssl_context=('ssl/gen.pem', 'ssl/key.pem'))
+    app.run(host='0.0.0.0',port='8083')

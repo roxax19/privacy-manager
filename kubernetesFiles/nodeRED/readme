@@ -1,0 +1,11 @@
+installed:
+
+npm install sqlite3
+npm install node-red-contrib-sql
+
+When everything works, install these in /usr/src/node-red folder
+
+node-pre-gyp ERR! Tried to download(403): https://mapbox-node-binary.s3.amazonaws.com/sqlite3/v3.1.13/node-v64-linux-x64.tar.gz 
+node-pre-gyp ERR! Pre-built binaries not found for sqlite3@3.1.13 and node@10.23.0 (node-v64 ABI) (falling back to source compile with node-gyp) 
+node-pre-gyp ERR! Tried to download(undefined): https://mapbox-node-binary.s3.amazonaws.com/sqlite3/v3.1.13/node-v64-linux-x64.tar.gz 
+node-pre-gyp ERR! Pre-built binaries not found for sqlite3@3.1.13 and node@10.23.0 (node-v64 ABI) (falling back to source compile with node-gyp)

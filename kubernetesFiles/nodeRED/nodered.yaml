@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-red
+  namespace: default
+  labels:
+    app: node-red
+    tier: backend
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-red
+  template:
+    metadata:
+      labels:
+        app: node-red
+    spec:
+      containers:
+        - name: node-red-pod
+          image: nodered/node-red
+          ports:
+          - containerPort: 1880
+          env:
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+          volumeMounts:
+            - mountPath: /data
+              name: test-volume
+      volumes:
+        - name: test-volume
+          hostPath:
+            # directory location on host
+            path: /home/manuel/Proyectos/privacy-manager/mounts/nodered
+            # this field is optional
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-red
+  namespace: default
+spec:
+  selector:
+    app: node-red
+  ports:
+    - port: 1880
+  type: LoadBalancer
+  clusterIP: 10.152.183.210

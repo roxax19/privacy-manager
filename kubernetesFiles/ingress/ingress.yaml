@@ -23,6 +23,10 @@ spec:
           backend:
             serviceName: auth
             servicePort: 8081
+        - path: /northbound
+          backend:
+            serviceName: node-red
+            servicePort: 1880
 ---
 #HAY QUE MDIFICAR ESTAS LINEAS EN /snap/microk8s/(NUM)/action/ingress.yaml
 

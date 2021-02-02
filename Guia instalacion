@@ -22,7 +22,7 @@ He instalado apt install nodejs
 he instalado apt install npm
 (mirar guia pagina, te dice como bajarte la ultima version LTS)
 Dentro de la carpeta de donde esta el servidor:
-	He instalado un modulo mysql con npm install mysql
+	He instalado npm install mysql
 	He instalado npm install express necesario para facilitar las respuestas a los get y los post
 	He instalado npm install body-parser necesario para obtener los parametros del post
 	He instalado npm install helmet para poner HSTS
@@ -38,4 +38,4 @@ He instalado addons de microk8s: dns dashboard ingress storage metallb
 He cambiado los archivos ingress del snap de microk8s para exponer el contenedor mqtt (ver readme Step 2)
 He creado un secreto con el certificado para el ingress (ver readme Step 3)
 
-
+Para instalar moduos en el nodered: acceder como root a los pods: https://github.com/ubuntu/microk8s/issues/841
