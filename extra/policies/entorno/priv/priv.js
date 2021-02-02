@@ -108,6 +108,9 @@ var requestsCount = []
 
 app.get('/', async function(req, res) {
 	try {
+
+		console.log("req.query: \n"+JSON.stringify(req.query))
+
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
 		await updateRules()
@@ -835,7 +838,6 @@ async function addOneRuleToPoliticsObjects(rule) {
 		}
 	}
 
-	console.log('politics: ' + JSON.stringify(politics))
 }
 
 /**

@@ -77,6 +77,7 @@ app.post('/', async function(req, res) {
 		console.log('Me han enviado un token')
 		console.log('Payload: ' + JSON.stringify(payload))
 		res.status(200).send({ id: payload.id, clase: payload.clase })
+		return
 	}
 	else if (typeof req.body.email !== 'undefined' || typeof req.body.contrasena !== 'undefined') {
 		//se ha enviado correo y contraseña
