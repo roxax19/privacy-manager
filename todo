@@ -8,13 +8,11 @@ Añadir conexión con distintas plataformas de IoT.
 		
 Configurar configmaps para que se puedan cambiar las variables más facilmente: direcciones IP, reglas de privacidad...
 
-Mejora de las políticas de privacidad
-	Cuando funcione, pasar todo dentro del cluster
+
 	
 ---- Doing:
 
-Prueba de funcionamiento de politicas de privacidad	
-	Para mañana: Hacer una lista de peticiones y de cambios a las reglas y realizarlas todas, a ver si funcionan bien
+Juntar github y dejarlo en la rama principal
 		
 -----DONE:
 
@@ -40,6 +38,8 @@ Mejora de las políticas de privacidad
 			max_requests, timeofday y la clase dentro del json funcionan correctamente
 			Las querys enviadas por el usuario funcionan perfectamente
 			Se ha cambiado el delete: ahora acepta varios ids separados por comas
+			
+	Trasladar todo al interior del cluster
 				
 
 Añadir conexión con distintas plataformas de IoT.
