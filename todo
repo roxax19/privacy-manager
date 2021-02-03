@@ -6,15 +6,15 @@ Añadir conexión con distintas plataformas de IoT.
 	Implementar la APi para Fiware --> nodeRed
 		Mejorar tratamiento de datos ya subidos. Necesitas establecer un buen sistema de ids
 		
-Configurar configmaps para que se puedan cambiar las variables más facilmente: direcciones IP, reglas de privacidad...
+Configurar configmaps para que se puedan cambiar las variables más facilmente: direcciones IP, reglas de privacidad, tipos de clases, etc.
 
+Seguir trabajando en las reglas de privacidad
 
 	
 ---- Doing:
 
-Juntar github y dejarlo en la rama principal
 		
------DONE:
+-----DONE (hasta 3/2/21):
 
 
 Mejora de las políticas de privacidad

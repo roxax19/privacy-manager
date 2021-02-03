@@ -50,7 +50,7 @@ var auth = 'https://auth.default.svc.cluster.local:8081'
 
 //var priv = 'https://10.152.183.202:8082';
 var priv = 'https://priv.default.svc.cluster.local:8082'
-//Para desarrollar desde local, hay que mirar ipconfig
+//Para desarrollar desde local
 //var priv = 'https://192.168.0.193:8082'
 //Para desarrollar en trabajo
 //var priv = 'https://172.16.153.233:8082'
@@ -169,7 +169,7 @@ async function comprobarToken(token) {
 			}
 		)
 		.then(function(response) {
-			console.log("response.data: \n"+JSON.stringify(response.data))
+			console.log('response.data: \n' + JSON.stringify(response.data))
 			respuesta = response.data
 		})
 		.catch(function(error) {

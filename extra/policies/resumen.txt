@@ -1,0 +1,65 @@
+Los campos que se querían implementar para la regla, eran los siguientes:
+(para una descripción más detallada, consultar policy-syntax.json)
+{
+    "id":"",
+    "rules":[
+        {
+            "action_type":"",
+            "privacy-method":"",
+            "resource":"",
+            "filter":"",
+            "conditions":[
+                {
+                    "requester":{
+                        "role":"",
+                        "location":"",
+                        "purpose":"",
+                        "max_requests":""
+                    },
+                    "context":{
+                        "timeofday":"",
+                        "data_type":"",
+                        "granularity":"",
+                        "data_last_modification_dates":"",
+                        "data_location":[]
+                    },
+                    "edge":{
+                        "Hw":"",
+                        "Sw":"",
+                        "conectivity":""
+                    }
+
+                }
+            ]
+        }
+    ]
+}
+
+De estos, se ha implementado su interacción con el módulo de privacidad los siguientes:
+
+- action_type: indica la operación que se esta realizando
+- privacy-method: indica el método de privacidad que se le va a aplicar
+- resource: indica a los recursos que puede acceder con una query en formato SQL
+- filter: incluye la parte "WHERE" de la query SQL
+- conditions:
+	- requester:
+		- role: indica la clase a la que afecta la regla de privacidad
+		- max_requests: indica la cantidad de peticiones que puede realizar un usuario de determinada clase
+	-context: 
+		- timeofday: indica el horario en el que se pueden realizar las queries.
+		
+Sobre estas reglas, hay que hacer varios comentarios. El acercamiento que se planteo en un principio era crear unas reglas de privacidad por usuario, no por query realizada. Por lo tanto, el funcionamiento actual es el siguiente: cuando llega una petición de usuario, se comprueban las reglas, y si tiene permiso, se realizan todas las queries solicitadas. Sería necesario, para seguir implementando las políticas y mejorar el esquema, que si una querie realizada por el usuario contiene variables que en las reglas de privacidad se separan en distintas categorías, se convirtieran en varias queries realizadas por el usuario, y se aplicara a cada una las reglas de forma individual.
+Dicho esto, el comportamiento actual es el siguiente: Los max_requests tienen caracter limitante, es decir, si una querie afecta a varias reglas se coge el menor. Cuando se supera este número, ya no se pueden realizar más queries del mismo tipo hasta que se reinicia el temporizador. Para el timeofday, si una regla permite un horario en específico, se permiten realizar todas las queries. Este es el más problemático, ya que esta implementación no representa bien el esquema definido
+
+Las partes que no se han implementado son las siguientes:
+- conditions:
+	- requester:
+		- location: No se ha implementado porque esta relacionada con la obtención de la ubicación en función del nodo al que te conectas. Como actalmente solo hay un nodo que hace a la vez de master y de esclavo, no se ha podido implementar
+		- purpose: No se ha implementado porque no estaba claro el "proposito" de esta parte de la regla
+	- context: 
+		- data_type: No se ha implementado por falta de tiempo.
+		- granularity: no se ha implementado porque los algoritmos de anonimizacion actuales no están lo suficientemente refinados para aceptar este parámetro
+		- data_last_modification_dates: No se ha implementado por falta de tiempo.
+		- data_location: No se ha implementado por la falta de madurez de la interfaz con los servidores cloud y por la falta de tiempo
+	- edge: No se ha implementado por la falta de nodos
+
