@@ -55,7 +55,7 @@ Las partes que no se han implementado son las siguientes:
 - conditions:
 	- requester:
 		- location: No se ha implementado porque esta relacionada con la obtención de la ubicación en función del nodo al que te conectas. Como actalmente solo hay un nodo que hace a la vez de master y de esclavo, no se ha podido implementar
-		- purpose: No se ha implementado porque no estaba claro el "proposito" de esta parte de la regla
+		- purpose: No se ha implementado porque no estaba claro el "proposito" de este campo. Preguntar a ruben
 	- context: 
 		- data_type: No se ha implementado por falta de tiempo.
 		- granularity: no se ha implementado porque los algoritmos de anonimizacion actuales no están lo suficientemente refinados para aceptar este parámetro
