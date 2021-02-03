@@ -108,8 +108,7 @@ var requestsCount = []
 
 app.get('/', async function(req, res) {
 	try {
-
-		console.log("req.query: \n"+JSON.stringify(req.query))
+		console.log('req.query: \n' + JSON.stringify(req.query))
 
 		//Tenemos que combrobar si las reglas de privacidad han cambiado, y si han cambiado actualizarlas
 		await updateConfig()
@@ -837,7 +836,6 @@ async function addOneRuleToPoliticsObjects(rule) {
 			politics[role].rules.push(rule)
 		}
 	}
-
 }
 
 /**
@@ -1024,7 +1022,19 @@ async function timePeriodAllowed(clase, method) {
 
 	//Procesamos el tiempo actual
 	var d = new Date()
-	var currentTimeHHMM = d.getHours() + ':' + d.getMinutes()
+
+	var currentTimeHHMM
+
+	console.log(addZero(d.getHours() - 1))
+
+	if (d.getHours() - 1 < 10) {
+		currentTimeHHMM = '0' + addZero(d.getHours() - 1) + ':' + addZero(d.getMinutes())
+	}
+	else {
+		currentTimeHHMM = addZero(d.getHours()) + ':' + addZero(d.getMinutes())
+	}
+
+	var currentTimeHHMM = addZero(d.getHours()) + ':' + addZero(d.getMinutes())
 
 	for (var i = 0; i < politics[clase].rules.length; i++) {
 		if (politics[clase].rules[i].action_type == method) {
@@ -1040,6 +1050,18 @@ async function timePeriodAllowed(clase, method) {
 								periodsArray[j] = periodsArray[j].split(' - ')
 
 								//Y comparamos los horarios
+								console.log('currentTime: ' + currentTimeHHMM)
+								console.log('\nfirst limit: ' + periodsArray[j][0])
+								console.log('\nsecond limit: ' + periodsArray[j][1])
+
+								if (currentTimeHHMM > periodsArray[j][0]) {
+									console.log('Es mas tarde que el primer limite')
+								}
+
+								if (currentTimeHHMM < periodsArray[j][1]) {
+									console.log('Es mas temprano que el segundo limite')
+								}
+
 								if (currentTimeHHMM > periodsArray[j][0] && currentTimeHHMM < periodsArray[j][1]) {
 									return true
 								}
@@ -1051,7 +1073,15 @@ async function timePeriodAllowed(clase, method) {
 		}
 	}
 
+	console.log('Llego al final, return false')
 	return false
+}
+
+function addZero(i) {
+	if (i < 10) {
+		i = '0' + i
+	}
+	return i
 }
 
 /**

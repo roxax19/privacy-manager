@@ -9,18 +9,12 @@
 				{
 					"requester": {
 						"role": "admin"
-					},
-					"context": {
-						"timeofday": "10:00 - 11:00"
 					}
 				},
 				{
 					"requester": {
 						"role": "clase2",
 						"max_requests": "10"
-					},
-					"context": {
-						"timeofday": "10:00 - 11:00"
 					}
 				}
 			]
@@ -34,9 +28,6 @@
 					"requester": {
 						"role": "admin",
 						"max_requests": "30"
-					},
-					"context": {
-						"timeofday": "11:00 - 12:00"
 					}
 				}
 			]
@@ -50,9 +41,6 @@
 					"requester": {
 						"role": "admin",
 						"max_requests": "30"
-					},
-					"context": {
-						"timeofday": "11:00 - 13:00"
 					}
 				}
 			]
@@ -66,9 +54,6 @@
 					"requester": {
 						"role": "admin",
 						"max_requests": "30"
-					},
-					"context": {
-						"timeofday": "11:00 - 12:00"
 					}
 				}
 			]
@@ -81,7 +66,7 @@
 						"role": "admin"
 					},
 					"context": {
-						"timeofday": "10:00 - 13:00"
+						"timeofday": "1:00 - 23:00"
 					}
 				},
 				{
@@ -105,7 +90,7 @@
 						"max_requests": "1"
 					},
 					"context": {
-						"timeofday": "10:00 - 13:00"
+						"timeofday": "1:00 - 23:00"
 					}
 				}
 			]
