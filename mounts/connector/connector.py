@@ -1,6 +1,8 @@
 import paho.mqtt.client as mqtt
 import mysql.connector
 
+print("hola")
+
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -58,10 +60,11 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 # Configuramos la conexion por TLS y con usr + pwd
-client.tls_set(ca_certs="ssl/myCA.pem", cert_reqs=mqtt.ssl.CERT_REQUIRED)
-client.username_pw_set("manuel", password="manuel")
+# client.tls_set(ca_certs="ssl/myCA.pem", cert_reqs=mqtt.ssl.CERT_REQUIRED)
+# client.username_pw_set("manuel", password="manuel")
 
 # Nos conectamos con el broker
+print("Me intento conectar")
 client.connect("10.152.183.240", 1883, 60)
 
 # Nos conectamos a la base de datos

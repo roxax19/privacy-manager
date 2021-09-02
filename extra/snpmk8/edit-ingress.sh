@@ -17,7 +17,7 @@ echo $version
 sudo umount /snap/microk8s/$version
 sudo unsquashfs /var/lib/snapd/snaps/microk8s_$version.snap
 
-python3 edit-ingress.py
+sudo python3 ./extra/snpmk8/edit-ingress.py
 
 sudo mksquashfs squashfs-root microk8s_$version.snap
 sudo cp microk8s_$version.snap /var/lib/snapd/snaps/microk8s_$version.snap
