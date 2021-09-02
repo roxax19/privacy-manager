@@ -78,14 +78,12 @@ Kubernetes doesn't work with relative pathing (see [pathing rules](https://githu
 
 ```
 kubernetesFiles/connector/connector.yaml
-
 kubernetesFiles/gen/gen.yaml
-
 kubernetesFiles/nodejs/apiRest.yaml
-
 kubernetesFiles/nodejs/auth.yaml
-
 kubernetesFiles/nodejs/priv.yaml
+kubernetesFiles/nodeRED/nodered.yaml
+kubernetesFiles/mqttimg/mosquitto.yaml
 ```
 
 You have to put the path to the folders inside mounts/ on this git.
