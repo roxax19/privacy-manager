@@ -3,7 +3,10 @@ A privacy system made for my Degree Final Project.
 
 # How to configure
 
+***ADDED NEW INSTALLER "setup.sh" that involves Step 1 to 4. You should have Python3 installed.***
+
 ## Step 1
+
 You have to configure your own kubernetes cluster. You need to have a storage class, an ingress controller, and a load balancer.
 
 You can easily get this with microk8s, and its addons. If you are using microk8s, you have to enable the following addons: dns, dashboard, ingress, storage, metallb
