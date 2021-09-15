@@ -48,7 +48,7 @@ spec:
 ```
 If you are using microk8s installed through snap, you can use the comands in /extra/snpmk8 to unmount and mount the volume where the Ingress Controller is located. To update the info on the Ingress Controller, disable and enable again the Ingress addon.
 
-## Step 3
+## Step 3 (optional)
 
 You can change the certificate used in TLS by Ingress.
 First, you have to create a secret with the cert in your kubernetes cluster. You can add it with this command:
@@ -101,6 +101,9 @@ For it to work correctly, you have to enter the phpMyAdmin pod, and create the d
 ```
 CREATE DATABASE test
 ```
+## Step 7 (optional)
+You can add some preloaded data to the database for testing purposes. You should execute this SQL queries in the phpMyAdmin pod.
+
 - Create "personas" table.
 ```
 CREATE TABLE `test`.`personas` ( `id` INT NOT NULL AUTO_INCREMENT , `nombre` VARCHAR(255) NOT NULL , `edad` INT NOT NULL , `lat` FLOAT NOT NULL , `lon` FLOAT NOT NULL , `profesion` VARCHAR(255) NOT NULL , `sueldo` INT NOT NULL , `pulso` INT NOT NULL , `temperatura` FLOAT NOT NULL , `enfermedad` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
