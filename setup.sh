@@ -9,19 +9,17 @@ sudo snap install microk8s --classic
 sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 
-newgrp microk8s
-
-# microk8s status --wait-ready
-
 #Starting microk8s
-#microk8s.start
+sudo microk8s.start
 
 #First step: enable addons
-#microk8s.enable dns dashboard ingress storage metallb
+sudo microk8s.enable dns dashboard ingress storage metallb
+
+sudo microk8s status --wait-ready
 
 #Second step: configure ingress for mqtt traffic
-#microk8s.stop
-#./extra/snpmk8/edit-ingress.sh
+sudo microk8s.stop
+sudo ./extra/snpmk8/edit-ingress.sh
 
 #Fourth step: change some file paths needed
 python3 extra/setup/step4.py
