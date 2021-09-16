@@ -3,7 +3,9 @@ A privacy system made for my Degree Final Project.
 
 # How to configure
 
-***ADDED NEW INSTALLER "setup.sh" that involves Step 1 to 4. You should have Python3 installed.***
+## Step 0
+
+***ADDED NEW INSTALLER "setup.sh" that involves Steps 1 to 4. You should have Python3 installed.***
 
 ## Step 1
 
@@ -92,10 +94,12 @@ kubernetesFiles/mqttimg/mosquitto.yaml
 You have to put the path to the folders inside mounts/ on this git.
 
 ## Step 5
+Now you have to wait for the system to be ready. You can check the status with ```microk8s kubectl get all -A```. When every pod and service is ready, you can deploy the privacy manager. 
+
 For deploying the whole system, you have to execute (if you are working with microk8s) kubernetesFiles/execute_yaml.sh. If you aren't, you can copy the kubectl commands and execute in a terminal.
 
 ## Step 6
-For it to work correctly, you have to enter the phpMyAdmin pod, and create the database and the tables with de following commands:
+You will notice that everything is deployed correctly, except for the connector pod. It is trying to connect to the database, but mysql doesn't have the correct configuration. For it to work correctly, you have to enter the phpMyAdmin pod, and create the database with de following command:
 
 - Create database
 ```
