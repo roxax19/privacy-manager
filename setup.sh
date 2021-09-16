@@ -26,6 +26,12 @@ python3 extra/setup/step4.py
 
 microk8s.start
 
+sudo microk8s status --wait-ready
+
+#cd kubernetesFiles
+
+#sudo ./execute_yaml.sh
+
 #Token para entrar en el dashboard
 #token=$(microk8s kubectl -n kube-system get secret | grep default-token | cut -d " " -f1)
 #microk8s kubectl -n kube-system describe secret $token
